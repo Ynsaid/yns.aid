@@ -12,7 +12,7 @@ import BirthdayAnimation from '@/components/portfolio/BirthdayAnimation';
 import MouseGlow from '@/components/portfolio/MouseGlow';
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+       <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #001C41, #194994, #001C41)' }}>
       {/* <BirthdayAnimation /> */}
       <MouseGlow /> 
       <Navbar />
@@ -21,7 +21,7 @@ const Index = () => {
       <Services />
       <Skills />
       <Projects />
-      {/* <Testimonials /> */} /* coming sooooooooon */
+      {/* <Testimonials /> */} 
       <Contact />
    
 
