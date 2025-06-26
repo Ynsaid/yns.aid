@@ -27,7 +27,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4">
       <form
         onSubmit={handleLogin}
         className="bg-white/5 p-8 rounded-xl shadow-xl backdrop-blur-md w-full max-w-sm"
@@ -60,7 +60,7 @@ export default function Login() {
           />
         </div>
 
-        <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
           Sign In
         </Button>
       </form>

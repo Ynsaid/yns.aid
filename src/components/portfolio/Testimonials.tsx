@@ -26,7 +26,7 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section id='testimonials' className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-20 px-6">
+    <section id='testimonials' className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-white text-center mb-12">
           Testimonials
@@ -38,7 +38,7 @@ const Testimonials = () => {
               key={index}
               className="bg-white/5 p-6 rounded-xl backdrop-blur-sm hover:scale-[1.02] transition-all duration-300"
             >
-              <Quote className="text-purple-400 h-6 w-6 mb-4" />
+              <Quote className="text-blue-400 h-6 w-6 mb-4" />
               <p className="text-gray-300 italic mb-4">"{t.message}"</p>
               <div className="text-white font-semibold">{t.name}</div>
               <div className="text-sm text-gray-400">{t.role}</div>

@@ -265,7 +265,7 @@ const Admin = () => {
   
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -292,7 +292,7 @@ const Admin = () => {
                 setEditingSkillId(null);
                 setNewSkill({ name: "", category: "", level: 0 });
               }}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Skill
@@ -370,7 +370,7 @@ const Admin = () => {
                       setNewSkill({ name: "", category: "", level: 0 });
                     }}
                     variant="outline"
-                    className="border-white/20 text-white"
+                    className="border-white/20 text-black hover:bg-white/5 hover:text-white"
                   >
                     Cancel
                   </Button>
@@ -388,7 +388,7 @@ const Admin = () => {
                 <div className="flex-1">
                   <div className="flex items-center space-x-4">
                     <span className="text-white font-medium">{skill.name}</span>
-                    <span className="text-purple-400">{skill.category}</span>
+                    <span className="text-blue-400">{skill.category}</span>
                     <span className="text-gray-300">{skill.level}%</span>
                   </div>
                 </div>
@@ -423,7 +423,7 @@ const Admin = () => {
             </h2>
             <Button
               onClick={() => setIsAddingProject(true)}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Project
@@ -517,14 +517,14 @@ const Admin = () => {
           )}
 
           <div className="space-y-3">
-            {projects.map((project) => (
+            {projects && projects.map((project) => (
               <div
                 key={project.id}
                 className="flex flex-col md:flex-row justify-between items-start bg-white/5 p-4 rounded-lg gap-2"
               >
                 <div>
-                  <h3 className="text-white font-medium">{project.title}</h3>
-                  <p className="text-purple-400 text-sm">
+                  <h3 className="text-white font-medium">{project?.title}</h3>
+                  <p className="text-blue-400 text-sm">
                     {project.description}
                   </p>
                 </div>
@@ -557,19 +557,19 @@ const Admin = () => {
             <h3 className="text-lg font-semibold text-white mb-2">
               Total Skills
             </h3>
-            <p className="text-3xl font-bold text-purple-400">
+            <p className="text-3xl font-bold text-blue-400">
               {skills.length}
             </p>
           </Card>
           <Card className="bg-white/10 border-white/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-2">Projects</h3>
-            <p className="text-3xl font-bold text-purple-400">
+            <p className="text-3xl font-bold text-blue-400">
               {projects.length}
             </p>
           </Card>
           <Card className="bg-white/10 border-white/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-2">Messages</h3>
-            <p className="text-3xl font-bold text-purple-400">{messages.length}</p>
+            <p className="text-3xl font-bold text-blue-400">{messages.length}</p>
           </Card>
         </div>
       </div>

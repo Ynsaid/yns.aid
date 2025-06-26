@@ -17,7 +17,7 @@ const Hero = () => {
         <div className="animate-fade-in">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
             Hi, I'm{' '}
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+           <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               <TypeAnimation
                 sequence={[
                   'Younes Aid', // Types Younes Aid
@@ -33,37 +33,37 @@ const Hero = () => {
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
+           <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Full Stack Developer passionate about creating amazing digital experiences and UI/UX designer.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:animate-fade-in" onClick={ () => goToProjects() }>
+             <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0" onClick={ goToProjects}>
               View My Work
             </Button>
-            <Button size="lg" variant="outline" className="border-white/20 text-black hover:bg-white/10 hover:text-white hover:animated-hover">
+            <Button size="lg" variant="outline" className="border-blue-300/30 text-black hover:bg-blue-500/20 hover:text-white hover:border-blue-300/50">
               Download CV
             </Button>
           </div>
 
           <div className="flex justify-center space-x-6">
-            <a href="https://github.com/Ynsaid" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://github.com/Ynsaid" className="text-blue-300 hover:text-blue-100 transition-colors">
               <Github className="h-6 w-6" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.linkedin.com/in/yyynsaid" className="text-blue-300 hover:text-blue-100 transition-colors">
               <Linkedin className="h-6 w-6" />
             </a>
-            <a href="https://www.facebook.com/yyyns.aid" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.facebook.com/yyyns.aid" className="text-blue-300 hover:text-blue-100 transition-colors">
               <Facebook className="h-6 w-6" />
             </a>
-            <a href="https://www.instagram.com/yns.aid/" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://www.instagram.com/yns.aid/" className="text-blue-300 hover:text-blue-100 transition-colors">
               <Instagram className="h-6 w-6" />
             </a>
           </div>
         </div>
 
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ArrowDown className="h-6 w-6 text-gray-400" />
+          <ArrowDown className="h-6 w-6 text-blue-300" />
         </div>
       </div>
     </section>

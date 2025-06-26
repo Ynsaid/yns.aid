@@ -45,7 +45,7 @@ const Projects = () => {
           Featured Projects
         </h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-4 lg:grid-cols-4 gap-8">
           {projects.map((project) => (
             <div
               key={project.id || project.title}
@@ -79,7 +79,7 @@ const Projects = () => {
                   )?.map((tech: string, index: number) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-purple-600/20 text-purple-300 rounded text-xs"
+                      className="px-2 py-1 bg-blue-600/20 text-blue-300 rounded text-xs"
                     >
                       {tech.trim()}
                     </span>

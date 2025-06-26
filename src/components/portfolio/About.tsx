@@ -12,35 +12,34 @@ const About = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column: Text */}
           <div>
-            <p className="text-gray-300 leading-relaxed mb-8">
-              I'm a passionate full-stack developer and UI/UX designer with over 2 years of experience crafting user-centered web applications that are both functional and visually engaging. I thrive on solving real-world problems through clean code and thoughtful design, blending aesthetics with performance. Outside of coding, I enjoy exploring emerging technologies, contributing to open source, and sharing insights through writing and mentoring.
-            </p>
+            <p className="text-gray-300 text-[16px] leading-relaxed mb-8">
+                I'm a passionate full-stack developer, mobile app developer, and UI/UX designer with over 2 years of experience building user-centric digital experiences. I specialize in creating responsive web and mobile applications that are not only visually engaging but also robust, scalable, and performant. From clean front-end interfaces to efficient back-end systems, I bring ideas to life with thoughtful code and design. I thrive on solving real-world problems through intuitive user experiences and modern tech stacks. Outside of development, I enjoy exploring emerging technologies, contributing to open-source projects, and mentoring others in the tech community.            </p>
 
             {/* Stats Row */}
-            <div className="flex flex-row justify-start gap-6 flex-wrap">
-              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm">
-                <div className="text-xl font-bold text-purple-400">10+</div>
+            <div className="flex flex-row justify-center gap-6 flex-wrap">
+              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm shadow-lg">
+                <div className="text-xl font-bold text-blue-400">10+</div>
                 <div className="text-gray-300 text-sm">Projects</div>
               </div>
-              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm">
-                <div className="text-xl font-bold text-purple-400">2+</div>
+              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm shadow-lg">
+                <div className="text-xl font-bold text-blue-400">2+</div>
                 <div className="text-gray-300 text-sm">Years Experience</div>
               </div>
-              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm">
-                <div className="text-xl font-bold text-purple-400">0</div>
-                <div className="text-gray-300 text-sm">Clients</div>
-              </div>
+              
             </div>
           </div>
 
-          {/* Right Column: Image */}
-          <div className="relative">
-            <div className="w-80 h-80 mx-auto relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-20 animate-pulse"></div>
+          {/* Right Column: Animated Rectangle Image */}
+          <div className="relative flex justify-center items-center">
+            {/* Animated Glow Background */}
+            <div className="absolute w-[360px] h-[360px] bg-gradient-to-tr from-blue-500 via-blue-500 to-blue-500 blur-3xl opacity-20 animate-pulse rounded-xl"></div>
+
+            {/* Floating Rectangle Image */}
+            <div className="relative w-80 h-96 animate-float">
               <img
                 src={Me}
                 alt="Profile"
-                className="w-full h-full object-cover rounded-full border-4 border-white/20"
+                className="w-full h-full object-cover rounded-xl border-4 border-white/20 transition-transform duration-500 hover:scale-105"
               />
             </div>
           </div>

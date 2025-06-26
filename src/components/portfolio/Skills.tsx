@@ -2,7 +2,95 @@
 
 import React, { useEffect, useState } from 'react';
 import { Progress } from '@/components/ui/progress';
-import { supabase } from '@/lib/supabase'; // Make sure this points to your client
+import { supabase } from '@/lib/supabase';
+import { RiSupabaseFill ,RiJavaLine } from "react-icons/ri";
+import { BsFiletypeXml } from "react-icons/bs";
+// Import tech icons from react-icons
+import {
+  SiHtml5,
+  SiCss3,
+  SiJavascript,
+  SiTypescript,
+  SiReact,
+  SiNextdotjs,
+  SiRedux,
+  SiNodedotjs,
+  SiExpress,
+  SiMongodb,
+  SiMysql,
+  SiPostgresql,
+  SiFirebase,
+  SiSupabase,
+  SiTailwindcss,
+  SiBootstrap,
+  SiKotlin,
+  SiPython,
+  SiFigma,
+  SiCanva,
+  SiAdobeillustrator,
+  SiAdobephotoshop,
+  SiGit,
+  SiGithub,
+  SiDocker,
+  SiVite,
+  SiFramer,
+  SiJquery,
+  SiLinux,
+  SiUbuntu,
+  SiCplusplus,
+  SiPhp,
+  SiDart,
+  SiFlutter,
+  SiAndroidstudio,
+} from 'react-icons/si';
+import { FaTools, FaCode } from 'react-icons/fa';
+
+
+
+// Map skill names to React Icons
+const skillIcons: Record<string, JSX.Element> = {
+  html: <SiHtml5 className="w-5 h-5 text-orange-500" />,
+  css: <SiCss3 className="w-5 h-5 text-blue-500" />,
+  javascript: <SiJavascript className="w-5 h-5 text-yellow-400" />,
+  typescript: <SiTypescript className="w-5 h-5 text-blue-400" />,
+  react: <SiReact className="w-5 h-5 text-cyan-400" />,
+  nextjs: <SiNextdotjs className="w-5 h-5 text-white" />,
+  redux: <SiRedux className="w-5 h-5 text-purple-500" />,
+  node: <SiNodedotjs className="w-5 h-5 text-green-500" />,
+  express: <SiExpress className="w-5 h-5 text-white" />,
+  mongodb: <SiMongodb className="w-5 h-5 text-green-600" />,
+  mysql: <SiMysql className="w-5 h-5 text-blue-500" />,
+  postgresql: <SiPostgresql className="w-5 h-5 text-blue-700" />,
+  firebase: <SiFirebase className="w-5 h-5 text-yellow-500" />,
+  supabase: <SiSupabase className="w-5 h-5 text-green-400" />,
+  tailwind: <SiTailwindcss className="w-5 h-5 text-sky-400" />,
+  bootstrap: <SiBootstrap className="w-5 h-5 text-purple-600" />,
+  kotlin: <SiKotlin className="w-5 h-5 text-purple-300" />,
+  java: <RiJavaLine className="w-5 h-5 text-red-500" />,
+  python: <SiPython className="w-5 h-5 text-yellow-300" />,
+  dart: <SiDart className="w-5 h-5 text-sky-500" />,
+  flutter: <SiFlutter className="w-5 h-5 text-blue-400" />,
+  php: <SiPhp className="w-5 h-5 text-indigo-400" />,
+  androidstudio: <SiAndroidstudio className="w-5 h-5 text-green-600" />,
+  figma: <SiFigma className="w-5 h-5 text-pink-400" />,
+  canva: <SiCanva className="w-5 h-5 text-indigo-400" />,
+  illustrator: <SiAdobeillustrator className="w-5 h-5 text-orange-400" />,
+  photoshop: <SiAdobephotoshop className="w-5 h-5 text-blue-400" />,
+  git: <SiGit className="w-5 h-5 text-orange-500" />,
+  github: <SiGithub className="w-5 h-5 text-white" />,
+  docker: <SiDocker className="w-5 h-5 text-blue-400" />,
+  vite: <SiVite className="w-5 h-5 text-yellow-400" />,
+  framer: <SiFramer className="w-5 h-5 text-white" />,
+  jquery: <SiJquery className="w-5 h-5 text-blue-400" />,
+  linux: <SiLinux className="w-5 h-5 text-yellow-100" />,
+  ubuntu: <SiUbuntu className="w-5 h-5 text-orange-400" />,
+  cplusplus: <SiCplusplus className="w-5 h-5 text-blue-400" />,
+  tools: <FaTools className="w-5 h-5 text-gray-400" />,
+  xml: <BsFiletypeXml className="w-5 h-5 text-orange-400" />,
+  code: <FaCode className="w-5 h-5 text-gray-300" />,
+};
+
+
 
 type Skill = {
   id: number;
@@ -27,7 +115,6 @@ const Skills = () => {
     fetchSkills();
   }, []);
 
-  // Group skills by category
   const skillCategories = skills.reduce<Record<string, Skill[]>>((acc, skill) => {
     if (!acc[skill.category]) acc[skill.category] = [];
     acc[skill.category].push(skill);
@@ -35,29 +122,39 @@ const Skills = () => {
   }, {});
 
   return (
-    <section id="skills" className="py-20 px-4 bg-black/20">
+    <section id="skills" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-white text-center mb-12">
           Skills & Technologies
         </h2>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {Object.entries(skillCategories).map(([category, skills]) => (
             <div key={category} className="bg-white/5 p-6 rounded-lg backdrop-blur-sm">
               <h3 className="text-2xl font-semibold text-white mb-6 text-center">
                 {category}
               </h3>
-              
+
               <div className="space-y-4">
-                {skills.map((skill) => (
-                  <div key={skill.id}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-300">{skill.name}</span>
-                      <span className="text-purple-400">{skill.level}%</span>
+                {skills.map((skill) => {
+                  const icon =
+                    skillIcons[skill.name.toLowerCase()] || (
+                      <FaCode className="w-5 h-5 text-gray-400" />
+                    );
+
+                  return (
+                    <div key={skill.id}>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-gray-300 flex items-center gap-2">
+                          {icon}
+                          {skill.name}
+                        </span>
+                        <span className="text-blue-400">{skill.level}%</span>
+                      </div>
+                      <Progress value={skill.level} className="h-2" />
                     </div>
-                    <Progress value={skill.level} className="h-2" />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
