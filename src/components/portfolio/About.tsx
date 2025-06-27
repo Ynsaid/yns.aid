@@ -25,7 +25,15 @@ const About = () => {
                 <div className="text-xl font-bold text-blue-400">2+</div>
                 <div className="text-gray-300 text-sm">Years Experience</div>
               </div>
-              
+              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm ">
+                <div className="text-xl font-bold text-blue-400">3</div>
+                <div className="text-gray-300 text-sm">Years Experience</div>
+              </div>
+              <div className="text-center p-4 w-40 bg-white/5 rounded-lg backdrop-blur-sm">
+                <div className="text-xl font-bold text-blue-400">3</div>
+                <div className="text-gray-300 text-sm">Languages Spoken</div>
+              </div>
+
             </div>
           </div>
 
