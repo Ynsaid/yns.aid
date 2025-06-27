@@ -105,16 +105,14 @@ const Skills = () => {
                   );
 
                   return (
-                    <div key={skill.id} className="relative group">
+                    <div key={skill.id} className="flex flex-col items-center gap-2">
                       {/* Icon square */}
-                      <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-lg hover:bg-white/20 transition duration-300 cursor-pointer">
+                      <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-lg hover:bg-white/20 transition duration-300">
                         {icon}
                       </div>
 
-                      {/* Custom tooltip under icon */}
-                      <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none whitespace-nowrap">
-                        {skill.name}
-                      </div>
+                      {/* Always-visible label */}
+                      <span className="text-sm text-gray-300 text-center">{skill.name}</span>
                     </div>
                   );
                 })}
