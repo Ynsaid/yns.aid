@@ -27,10 +27,10 @@ const Contact = () => {
 
     emailjs
       .sendForm(
-        import.meta.env.NEXT_PUBLIC_SERVICE!,     // Replace with your EmailJS service ID
-        import.meta.env.NEXT_PUBLIC_TEMPLATE!,    // Replace with your EmailJS template ID
+        import.meta.env.VITE_SERVICE!,     // Replace with your EmailJS service ID
+        import.meta.env.VITE_TEMPLATE!,    // Replace with your EmailJS template ID
         form.current,
-        import.meta.env.NEXT_PUBLIC_PUBLIC_KEY      // Replace with your EmailJS public key (formerly user ID)
+        import.meta.env.VITE_PUBLIC_KEY      // Replace with your EmailJS public key (formerly user ID)
       )
       .then(
         () => {
