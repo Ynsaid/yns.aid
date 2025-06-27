@@ -35,7 +35,7 @@ const About = () => {
             <div className="absolute w-[360px] h-[360px] bg-gradient-to-tr from-blue-500 via-blue-500 to-blue-500 blur-3xl opacity-20 animate-pulse rounded-xl"></div>
 
             {/* Floating Rectangle Image */}
-            <div className="relative w-80 h-96 animate-float">
+            <div className="relative w-80 h-80 animate-float">
               <img
                 src={Me}
                 alt="Profile"
