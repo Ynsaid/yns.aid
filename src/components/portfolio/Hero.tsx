@@ -34,7 +34,7 @@ const Hero = () => {
           </h1>
 
            <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Full Stack Developer passionate about creating amazing digital experiences and UI/UX designer.
+            Full Stack Developer focused on creating smooth, user-friendly apps with both frontend and backend expertise, and a strong eye for design.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
