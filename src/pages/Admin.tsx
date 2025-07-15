@@ -7,7 +7,7 @@ import { Plus, Edit, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const Admin = () => {
-  // Skills state
+
   const [skills, setSkills] = useState([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState({
@@ -31,7 +31,6 @@ const Admin = () => {
     fetchSkills();
   }, []);
 
-  // functions of skills
   const handleAddSkill = async () => {
     if (newSkill.name && newSkill.category) {
       const { data, error } = await supabase
@@ -123,7 +122,7 @@ const Admin = () => {
         throw uploadError;
       }
   
-      // return just the file name
+      
       return fileName;
     } catch (error) {
       console.error("Error in uploadImageAndGetName:", error);
@@ -131,7 +130,7 @@ const Admin = () => {
     }
   };
   
-  // functions of projects
+
   const handleAddProject = async () => {
     if (newProject.title && newProject.description) {
       let imageUrl = newProject.image;
@@ -235,7 +234,7 @@ const Admin = () => {
     else setProjects(projects.filter((project) => project.id !== id));
   };
 
-  // function to get messages
+
  const [messages, setMessages] = useState([]);
  useEffect(() => {
   const fetchMessages = async () => {
@@ -250,7 +249,7 @@ const Admin = () => {
  
  
 
- // function of logout
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
@@ -258,9 +257,9 @@ const Admin = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       handleLogout();
-    }, 600000); // logout after 100 seconds
+    }, 600000); 
   
-    return () => clearTimeout(timer); // cleanup if component is removed
+    return () => clearTimeout(timer); 
   }, []);
   
 
@@ -280,7 +279,6 @@ const Admin = () => {
           </Button>
         </div>
 
-        {/* Skills Management */}
         <Card className="bg-white/10 border-white/20 p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-white">
@@ -415,7 +413,7 @@ const Admin = () => {
           </div>
         </Card>
 
-        {/* Projects Management */}
+    
         <Card className="bg-white/10 border-white/20 p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-white">
@@ -533,7 +531,7 @@ const Admin = () => {
                     size="sm"
                     variant="outline"
                     className="border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
-                    onClick={() => handleEditProject(project.id)} // You need to implement this function
+                    onClick={() => handleEditProject(project.id)} 
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -551,7 +549,7 @@ const Admin = () => {
           </div>
         </Card>
 
-        {/* Stats */}
+       
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="bg-white/10 border-white/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-2">
