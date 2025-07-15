@@ -20,7 +20,7 @@ const Projects = () => {
           if (project.image) {
             const { data: publicUrlData } = supabase.storage
               .from('project-images')
-              .getPublicUrl(project.image); // 👈 تأكد أن الاسم فقط محفوظ في قاعدة البيانات
+              .getPublicUrl(project.image); 
 
             imageUrl = publicUrlData?.publicUrl || null;
           }
