@@ -13,7 +13,7 @@ import MouseGlow from '@/components/portfolio/MouseGlow';
 const Index = () => {
   return (
        <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #001C41, #194994, #001C41)' }}>
-      {/* <BirthdayAnimation /> */}
+
       <MouseGlow /> 
       <Navbar />
       <Hero />
@@ -21,7 +21,7 @@ const Index = () => {
       <Services />
       <Skills />
       <Projects />
-      {/* <Testimonials /> */} 
+
       <Contact />
    
 
