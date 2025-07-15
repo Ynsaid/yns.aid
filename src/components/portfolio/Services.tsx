@@ -37,7 +37,7 @@ const Services = () => {
           My Services
         </h2>
 
-        {/* Flex layout with center alignment */}
+    
         <div className="flex flex-wrap justify-center gap-8">
           {services.map((service, index) => (
             <motion.div
