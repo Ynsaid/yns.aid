@@ -9,8 +9,8 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 
-import { AuthProvider } from "@/contexts/AuthContext"; // Make sure casing matches the file name exactly
-import ProtectedRoute from "@/components/ProtectedRoute"; // Make sure this path is correct
+import { AuthProvider } from "@/contexts/AuthContext"; 
+import ProtectedRoute from "@/components/ProtectedRoute"; 
 
 const queryClient = new QueryClient();
 
