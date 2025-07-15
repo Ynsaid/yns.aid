@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase'; // Make sure this is correctly set up
+import { supabase } from '@/lib/supabase'; 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export default function Login() {
-  const navigate = useNavigate(); // ✅ React Router DOM navigation
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,7 +22,7 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate('/admin'); // ✅ Redirect to /admin on success
+      navigate('/admin'); 
     }
   };
 
