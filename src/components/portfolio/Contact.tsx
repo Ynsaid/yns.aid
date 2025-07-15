@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import emailjs from 'emailjs-com';
-import { toast } from 'sonner'; // You can use any toast library
+import { toast } from 'sonner'; 
 
 
 
@@ -27,10 +27,10 @@ const Contact = () => {
 
     emailjs
       .sendForm(
-        import.meta.env.VITE_SERVICE!,     // Replace with your EmailJS service ID
-        import.meta.env.VITE_TEMPLATE!,    // Replace with your EmailJS template ID
+        import.meta.env.VITE_SERVICE!,     
+        import.meta.env.VITE_TEMPLATE!,   
         form.current,
-        import.meta.env.VITE_PUBLIC_KEY      // Replace with your EmailJS public key (formerly user ID)
+        import.meta.env.VITE_PUBLIC_KEY     
       )
       .then(
         () => {
