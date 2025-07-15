@@ -20,9 +20,9 @@ const Hero = () => {
            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               <TypeAnimation
                 sequence={[
-                  'Younes Aid', // Types Younes Aid
-                  2000,         // Wait 1 second
-                  '',           // Clears text
+                  'Younes Aid', 
+                  2000,       
+                  '',          
                   100,
                   'Younes Aid',
                 ]}
