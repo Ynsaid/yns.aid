@@ -106,12 +106,10 @@ const Skills = () => {
 
                   return (
                     <div key={skill.id} className="flex flex-col items-center gap-2">
-                      {/* Icon square */}
+            
                       <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-lg hover:bg-white/20 transition duration-300">
                         {icon}
                       </div>
-
-                      {/* Always-visible label */}
                       <span className="text-sm text-gray-300 text-center">{skill.name}</span>
                     </div>
                   );
