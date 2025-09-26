@@ -6,8 +6,19 @@ import { Card } from "@/components/ui/card";
 import { Plus, Edit, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-const Admin = () => {
+// Recharts imports for the two line charts
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
+const Admin = () => {
+  // Skills state
   const [skills, setSkills] = useState([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState({
@@ -20,7 +31,107 @@ const Admin = () => {
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  // visitors charts state
+  const [visitorsCount, setVisitorsCount] = useState<number | null>(null);
+  const [yearVisitorsData, setYearVisitorsData] = useState<
+    { name: string; count: number }[]
+  >([]);
+  const [monthVisitorsData, setMonthVisitorsData] = useState<
+    { name: string; count: number }[]
+  >([]);
 
+  // function to get visitors
+  const getVisitorsByday = async () => {
+    const { count, error } = await supabase
+      .from("Visitors")
+      .select("*", { count: "exact", head: true });
+
+    if (error) {
+      console.error(error);
+      return 0;
+    }
+    return count || 0;
+  };
+
+  // fetch and build yearly and monthly chart data
+  const fetchVisitorsCharts = async () => {
+    try {
+      const now = new Date();
+      const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
+      const nextYearStart = new Date(now.getFullYear() + 1, 0, 1).toISOString();
+
+      const monthStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+      ).toISOString();
+      const nextMonthStart = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        1
+      ).toISOString();
+
+      // Fetch visited_at for the whole year
+      const { data: yearData, error: yearError } = await supabase
+        .from("Visitors")
+        .select("visited_at")
+        .gte("visited_at", yearStart)
+        .lt("visited_at", nextYearStart);
+
+      if (yearError) {
+        console.error("Error fetching year visitors:", yearError);
+      } else {
+        // initialize months array
+        const months = Array.from({ length: 12 }, (_, i) => ({
+          name: new Date(0, i).toLocaleString("en", { month: "short" }),
+          count: 0,
+        }));
+
+        (yearData || []).forEach((row: any) => {
+          const dt = new Date(row.visited_at);
+          if (!isNaN(dt.getTime())) {
+            months[dt.getMonth()].count += 1;
+          }
+        });
+
+        setYearVisitorsData(months);
+      }
+
+      // Fetch visited_at for current month
+      const { data: monthData, error: monthError } = await supabase
+        .from("Visitors")
+        .select("visited_at")
+        .gte("visited_at", monthStart)
+        .lt("visited_at", nextMonthStart);
+
+      if (monthError) {
+        console.error("Error fetching month visitors:", monthError);
+      } else {
+        // determine number of days in current month
+        const daysInMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        ).getDate();
+        const days = Array.from({ length: daysInMonth }, (_, i) => ({
+          name: String(i + 1),
+          count: 0,
+        }));
+
+        (monthData || []).forEach((row: any) => {
+          const dt = new Date(row.visited_at);
+          if (!isNaN(dt.getTime())) {
+            const day = dt.getDate();
+            days[day - 1].count += 1;
+          }
+        });
+
+        setMonthVisitorsData(days);
+      }
+    } catch (err) {
+      console.error("Error building visitors charts:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -31,6 +142,17 @@ const Admin = () => {
     fetchSkills();
   }, []);
 
+  // fetch visitors count and chart data on mount
+  useEffect(() => {
+    const fetchVisitors = async () => {
+      const count = await getVisitorsByday();
+      setVisitorsCount(count);
+      await fetchVisitorsCharts();
+    };
+    fetchVisitors();
+  }, []);
+
+  // functions of skills
   const handleAddSkill = async () => {
     if (newSkill.name && newSkill.category) {
       const { data, error } = await supabase
@@ -102,39 +224,36 @@ const Admin = () => {
     fetchProjects();
   }, []);
 
-
-
-
   const uploadImageAndGetName = async (file: File): Promise<string | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
-  
+
       const { error: uploadError } = await supabase.storage
-        .from('project-images')
+        .from("project-images")
         .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+          cacheControl: "3600",
+          upsert: false,
         });
-  
+
       if (uploadError) {
         console.error("Upload error:", uploadError);
         throw uploadError;
       }
-  
-      
+
+      // return just the file name
       return fileName;
     } catch (error) {
       console.error("Error in uploadImageAndGetName:", error);
       return null;
     }
   };
-  
 
+  // functions of projects
   const handleAddProject = async () => {
     if (newProject.title && newProject.description) {
       let imageUrl = newProject.image;
-  
+
       if (imageFile) {
         const uploadedUrl = await uploadImageAndGetName(imageFile);
         if (uploadedUrl) {
@@ -144,20 +263,18 @@ const Admin = () => {
           return;
         }
       }
-  
+
       const payload = {
         ...newProject,
         image: imageUrl,
-        technologies: newProject.technologies
-          .split(",")
-          .map((t) => t.trim()),
+        technologies: newProject.technologies.split(",").map((t) => t.trim()),
       };
-  
+
       const { data, error } = await supabase
         .from("projects")
         .insert([payload])
         .select();
-  
+
       if (error) {
         console.error("Error inserting project:", error.message);
       } else {
@@ -175,7 +292,7 @@ const Admin = () => {
       }
     }
   };
-  
+
   const handleEditProject = (id: number) => {
     const projectToEdit = projects.find((project) => project.id === id);
     if (projectToEdit) {
@@ -234,22 +351,18 @@ const Admin = () => {
     else setProjects(projects.filter((project) => project.id !== id));
   };
 
+  // function to get messages
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase.from("messages").select("*");
+      if (error) console.error(error);
+      else setMessages(data);
+    };
+    fetchMessages();
+  }, []);
 
- const [messages, setMessages] = useState([]);
- useEffect(() => {
-  const fetchMessages = async () => {
-    const { data, error } = await supabase.from("messages").select("*");
-    if (error) console.error(error);
-    else setMessages(data);
-  };
-  fetchMessages();
- }, []);
- 
- 
- 
- 
-
-
+  // function of logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
@@ -257,11 +370,10 @@ const Admin = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       handleLogout();
-    }, 600000); 
-  
-    return () => clearTimeout(timer); 
+    }, 600000); // logout after 100 seconds
+
+    return () => clearTimeout(timer); // cleanup if component is removed
   }, []);
-  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
@@ -269,6 +381,7 @@ const Admin = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+          {/* Btn logout */}
           <Button
             variant="outline"
             className="border-white/20 text-black hover:bg-white/10 hover:text-white/80"
@@ -279,7 +392,8 @@ const Admin = () => {
           </Button>
         </div>
 
-        <Card className="bg-white/10 border-white/20 p-6 mb-8">
+        {/* Skills Management */}
+        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-white">
               Skills Management
@@ -377,17 +491,22 @@ const Admin = () => {
             </div>
           )}
 
-          <div className="space-y-3">
+          {/* Skills list */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {skills.map((skill) => (
               <div
                 key={skill.id}
                 className="flex items-center justify-between bg-white/5 p-4 rounded-lg"
               >
-                <div className="flex-1">
-                  <div className="flex items-center space-x-4">
+                <div>
+                  <div className="flex flex-col space-y-1">
                     <span className="text-white font-medium">{skill.name}</span>
-                    <span className="text-blue-400">{skill.category}</span>
-                    <span className="text-gray-300">{skill.level}%</span>
+                    <span className="text-blue-400 text-sm">
+                      {skill.category}
+                    </span>
+                    <span className="text-gray-300 text-sm">
+                      {skill.level}%
+                    </span>
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -413,8 +532,8 @@ const Admin = () => {
           </div>
         </Card>
 
-    
-        <Card className="bg-white/10 border-white/20 p-6 mb-8">
+        {/* Projects Management */}
+        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-white">
               Projects Management
@@ -447,15 +566,15 @@ const Admin = () => {
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
               <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setImageFile(e.target.files[0]);
-                }
-              }}
-              className="bg-white/10 border-white/20 text-white"
-            />
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setImageFile(e.target.files[0]);
+                  }
+                }}
+                className="bg-white/10 border-white/20 text-white"
+              />
 
               <Input
                 placeholder="Technologies (comma separated)"
@@ -485,11 +604,10 @@ const Admin = () => {
                 <Button
                   onClick={
                     editingProjectId ? handleUpdateProject : handleAddProject
-                  } 
+                  }
                   className="bg-green-600 hover:bg-green-700"
                 >
                   {editingProjectId ? "Update" : "Add"}
-                  
                 </Button>
                 <Button
                   onClick={() => {
@@ -514,60 +632,113 @@ const Admin = () => {
             </div>
           )}
 
-          <div className="space-y-3">
-            {projects && projects.map((project) => (
-              <div
-                key={project.id}
-                className="flex flex-col md:flex-row justify-between items-start bg-white/5 p-4 rounded-lg gap-2"
-              >
-                <div>
-                  <h3 className="text-white font-medium">{project?.title}</h3>
-                  <p className="text-blue-400 text-sm">
-                    {project.description}
-                  </p>
+          {/* Projects grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {projects &&
+              projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="bg-white/5 p-4 rounded-lg flex flex-col justify-between"
+                >
+                  <div className="mb-3">
+                    <h3 className="text-white font-medium">{project?.title}</h3>
+                    <p className="text-blue-400 text-sm">
+                      {project.description}
+                    </p>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
+                      onClick={() => handleEditProject(project.id)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-red-500/20 text-red-400 hover:bg-red-500/20"
+                      onClick={() => handleDeleteProject(project.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
-                    onClick={() => handleEditProject(project.id)} 
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-red-500/20 text-red-400 hover:bg-red-500/20"
-                    onClick={() => handleDeleteProject(project.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </Card>
 
-       
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white/10 border-white/20 p-6">
+        {/* Stats */}
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
             <h3 className="text-lg font-semibold text-white mb-2">
               Total Skills
             </h3>
-            <p className="text-3xl font-bold text-blue-400">
+            <p className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-blue-300 text-transparent bg-clip-text">
               {skills.length}
             </p>
           </Card>
-          <Card className="bg-white/10 border-white/20 p-6">
+
+          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
             <h3 className="text-lg font-semibold text-white mb-2">Projects</h3>
-            <p className="text-3xl font-bold text-blue-400">
+            <p className="text-4xl font-extrabold bg-gradient-to-r from-green-400 to-green-300 text-transparent bg-clip-text">
               {projects.length}
             </p>
           </Card>
+
+          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
+            <h3 className="text-lg font-semibold text-white mb-2">Visitors</h3>
+            <p className="text-4xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-300 text-transparent bg-clip-text">
+              {visitorsCount !== null ? visitorsCount : "Loading..."}
+            </p>
+          </Card>
+        </div>
+
+        {/* Visitors Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <Card className="bg-white/10 border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-2">Messages</h3>
-            <p className="text-3xl font-bold text-blue-400">{messages.length}</p>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Visitors This Year (by month)
+            </h3>
+            <div style={{ width: "100%", height: 260 }}>
+              <ResponsiveContainer>
+                <LineChart data={yearVisitorsData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#60A5FA"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="bg-white/10 border-white/20 p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Visitors This Month (by day)
+            </h3>
+            <div style={{ width: "100%", height: 260 }}>
+              <ResponsiveContainer>
+                <LineChart data={monthVisitorsData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#34D399"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </div>
       </div>
