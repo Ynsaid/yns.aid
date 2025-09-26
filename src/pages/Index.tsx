@@ -10,6 +10,7 @@ import Services from '@/components/portfolio/Services';
 import Testimonials from '@/components/portfolio/Testimonials';
 import BirthdayAnimation from '@/components/portfolio/BirthdayAnimation';
 import MouseGlow from '@/components/portfolio/MouseGlow';
+import UseTrackVisitor from '@/components/portfolio/UseTrackVisitor';
 const Index = () => {
     UseTrackVisitor();
   return (
