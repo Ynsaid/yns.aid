@@ -11,6 +11,7 @@ import Testimonials from '@/components/portfolio/Testimonials';
 import BirthdayAnimation from '@/components/portfolio/BirthdayAnimation';
 import MouseGlow from '@/components/portfolio/MouseGlow';
 const Index = () => {
+    UseTrackVisitor();
   return (
        <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #001C41, #194994, #001C41)' }}>
 
