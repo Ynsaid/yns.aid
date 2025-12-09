@@ -48,12 +48,13 @@ export default function Login() {
             type="email"
             placeholder="Email"
             className={`bg-white/10 text-white placeholder:text-gray-200 
-    ${error ? "border-red-500 focus-visible:ring-red-500" : "border-white/20"}
+    focus-visible:ring-0  focus:border-white focus-visible:ring-offset-0 focus:outline-none
+    ${error ? "border-red-500" : "border-white/20"}
   `}
             value={email}
-            onChange={(e) =>{ 
+            onChange={(e) => {
               setEmail(e.target.value);
-               setError("");
+              setError("");
             }}
             required
           />
@@ -64,11 +65,12 @@ export default function Login() {
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             className={`bg-white/10 text-white placeholder:text-gray-200 pr-10
-    ${error ? "border-red-500 focus-visible:ring-red-500" : "border-white/20"}
+    focus-visible:ring-0  focus:border-white focus-visible:ring-offset-0 focus:outline-none
+    ${error ? "border-red-500" : "border-white/20"}
   `}
             value={password}
-            onChange={(e) => { 
-              setPassword(e.target.value)
+            onChange={(e) => {
+              setPassword(e.target.value);
               setError("");
             }}
             required
