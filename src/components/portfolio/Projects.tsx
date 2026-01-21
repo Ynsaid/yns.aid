@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Github, Award } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { motion } from "framer-motion";
 
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState<
@@ -11,6 +12,13 @@ const Portfolio = () => {
   >("projects");
   const [projects, setProjects] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
+
+
+  const tabs = [
+    { id: "projects", label: "Projects" },
+    { id: "certificates", label: "Certificates" },
+    { id: "positions", label: "Positions" },
+  ];
 
   // Fetch projects
   useEffect(() => {
@@ -67,48 +75,42 @@ const Portfolio = () => {
           My Portfolio
         </h2>
 
-        {/* Switcher */}
-        <div className="flex justify-center gap-4 mb-10">
-          <Button
-            variant={activeTab === "projects" ? "default" : "outline"}
-            className={
-              activeTab === "projects"
-                ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                : "bg-transparent text-white border-white/20"
-            }
-            onClick={() => setActiveTab("projects")}
-          >
-            Projects
-          </Button>
-
-          <Button
-            variant={activeTab === "certificates" ? "default" : "outline"}
-            className={
-              activeTab === "certificates"
-                ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                : "bg-transparent text-white border-white/20"
-            }
-            onClick={() => setActiveTab("certificates")}
-          >
-            Certificates
-          </Button>
-
-          <Button
-            variant={activeTab === "positions" ? "default" : "outline"}
-            className={
-              activeTab === "positions"
-                ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
-                : "bg-transparent text-white border-white/20"
-            }
-            onClick={() => setActiveTab("positions")}
-          >
-            Positions
-          </Button>
+        {/* Bubble Switcher */}
+        <div className="flex justify-center mb-10">
+          <div className="flex space-x-1 bg-white/10 p-1 rounded-full backdrop-blur-sm">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`${
+                  activeTab === tab.id ? "text-white" : "text-gray-400 hover:text-white"
+                } relative rounded-full px-6 py-2 text-sm font-medium transition focus-visible:outline-2`}
+                style={{
+                  WebkitTapHighlightColor: "transparent",
+                }}
+              >
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="bubble"
+                    className="absolute inset-0 z-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full shadow-lg"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className="relative z-10 mix-blend-normal">{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Projects Section */}
         {activeTab === "projects" && (
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
             {projects.map((project) => (
               <div
                 key={project.id || project.title}
@@ -173,12 +175,16 @@ const Portfolio = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Certificates Section */}
         {activeTab === "certificates" && (
-          <>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             {certificates.length > 0 ? (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {certificates.map((cert) => (
@@ -227,14 +233,20 @@ const Portfolio = () => {
                 Certificates coming soon...
               </p>
             )}
-          </>
+          </motion.div>
         )}
 
         {/* Positions Section */}
         {activeTab === "positions" && (
-          <p className="text-center text-white animate-pulse mt-10">
-            Positions coming soon...
-          </p>
+          <motion.div
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.3 }}
+          >
+            <p className="text-center text-white animate-pulse mt-10">
+              Positions coming soon...
+            </p>
+          </motion.div>
         )}
       </div>
     </section>
