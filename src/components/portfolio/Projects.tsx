@@ -13,7 +13,7 @@ const Portfolio = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
 
-
+  // Tab configuration for the bubble loop
   const tabs = [
     { id: "projects", label: "Projects" },
     { id: "certificates", label: "Certificates" },
@@ -83,7 +83,9 @@ const Portfolio = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`${
-                  activeTab === tab.id ? "text-white" : "text-gray-400 hover:text-white"
+                  activeTab === tab.id
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
                 } relative rounded-full px-6 py-2 text-sm font-medium transition focus-visible:outline-2`}
                 style={{
                   WebkitTapHighlightColor: "transparent",
@@ -96,7 +98,9 @@ const Portfolio = () => {
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
-                <span className="relative z-10 mix-blend-normal">{tab.label}</span>
+                <span className="relative z-10 mix-blend-normal">
+                  {tab.label}
+                </span>
               </button>
             ))}
           </div>
@@ -111,70 +115,92 @@ const Portfolio = () => {
             transition={{ duration: 0.3 }}
             className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           >
-            {projects.map((project) => (
-              <div
-                key={project.id || project.title}
-                className="bg-white/5 rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                {project.imageUrl ? (
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="w-full h-40 object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-40 bg-gray-700 flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">No Image</span>
-                  </div>
-                )}
+            {projects.map((project) => {
+              
+              const isNew = project.created_at
+                ? (new Date().getTime() -
+                    new Date(project.created_at).getTime()) /
+                    (1000 * 3600 * 24) <
+                  30
+                : false;
 
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="text-base font-semibold text-white mb-1">
-                    {project.title}
-                  </h3>
-                  <p className="text-gray-300 text-xs mb-2 line-clamp-2">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {(Array.isArray(project.technologies)
-                      ? project.technologies
-                      : project.technologies?.split(",")
-                    )?.map((tech: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-1.5 py-0.5 bg-blue-600/20 text-blue-300 rounded text-[10px]"
-                      >
-                        {tech.trim()}
+              return (
+                <div
+                  key={project.id || project.title}
+                 
+                  className="relative bg-white/5 rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                
+                  {isNew && (
+                    <div className="absolute top-3 right-3 z-10 pointer-events-none">
+                      <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg animate-pulse">
+                        NEW
                       </span>
-                    ))}
-                  </div>
+                    </div>
+                  )}
 
-                  <div className="mt-auto flex gap-2">
-                    {project.liveUrl && (
-                      <Button
-                        size="sm"
-                        className="flex-1 hover:bg-white/30 hover:text-white text-xs"
-                        onClick={() => window.open(project.liveUrl, "_blank")}
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Live Demo
-                      </Button>
-                    )}
-                    {project.githubUrl && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-white/20 text-black hover:bg-white/20 hover:text-white text-xs"
-                        onClick={() => window.open(project.githubUrl, "_blank")}
-                      >
-                        <Github className="h-3 w-3" />
-                      </Button>
-                    )}
+                  {project.imageUrl ? (
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="w-full h-40 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-40 bg-gray-700 flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">No Image</span>
+                    </div>
+                  )}
+
+                  <div className="p-4 flex flex-col flex-grow">
+                    <h3 className="text-base font-semibold text-white mb-1">
+                      {project.title}
+                    </h3>
+                    <p className="text-gray-300 text-xs mb-2 line-clamp-2">
+                      {project.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {(Array.isArray(project.technologies)
+                        ? project.technologies
+                        : project.technologies?.split(",")
+                      )?.map((tech: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-1.5 py-0.5 bg-blue-600/20 text-blue-300 rounded text-[10px]"
+                        >
+                          {tech.trim()}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-auto flex gap-2">
+                      {project.liveUrl && (
+                        <Button
+                          size="sm"
+                          className="flex-1 hover:bg-white/30 hover:text-white text-xs"
+                          onClick={() => window.open(project.liveUrl, "_blank")}
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Live Demo
+                        </Button>
+                      )}
+                      {project.githubUrl && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-white/20 text-black hover:bg-white/20 hover:text-white text-xs"
+                          onClick={() =>
+                            window.open(project.githubUrl, "_blank")
+                          }
+                        >
+                          <Github className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
 
@@ -239,9 +265,9 @@ const Portfolio = () => {
         {/* Positions Section */}
         {activeTab === "positions" && (
           <motion.div
-             initial={{ opacity: 0, y: 10 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
             <p className="text-center text-white animate-pulse mt-10">
               Positions coming soon...
