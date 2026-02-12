@@ -7,7 +7,7 @@ import {
   SiNodedotjs, SiExpress, SiMongodb, SiMysql, SiPostgresql, SiFirebase, SiSupabase,
   SiTailwindcss, SiBootstrap, SiKotlin, SiPython, SiFigma, SiCanva, SiAdobeillustrator,
   SiAdobephotoshop, SiGit, SiGithub, SiDocker, SiVite, SiFramer, SiJquery, SiLinux,
-  SiUbuntu, SiCplusplus, SiPhp, SiDart, SiFlutter, SiAndroidstudio
+  SiUbuntu, SiCplusplus, SiPhp, SiDart, SiFlutter, SiAndroidstudio,SiAffinityphoto
 } from 'react-icons/si';
 import { RiJavaLine } from "react-icons/ri";
 import { BsFiletypeXml } from "react-icons/bs";
@@ -53,6 +53,7 @@ const skillIcons: Record<string, JSX.Element> = {
   tools: <FaTools className="w-8 h-8 text-gray-400" />,
   xml: <BsFiletypeXml className="w-8 h-8 text-orange-400" />,
   code: <FaCode className="w-8 h-8 text-gray-300" />,
+  Affinity : <SiAffinityphoto className="w-8 h-8 text-green-400" />
 };
 
 type Skill = {
