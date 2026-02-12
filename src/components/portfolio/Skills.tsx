@@ -53,7 +53,7 @@ const skillIcons: Record<string, JSX.Element> = {
   tools: <FaTools className="w-8 h-8 text-gray-400" />,
   xml: <BsFiletypeXml className="w-8 h-8 text-orange-400" />,
   code: <FaCode className="w-8 h-8 text-gray-300" />,
-  Affinity : <SiAffinityphoto className="w-8 h-8 text-green-400" />
+  affinity : <SiAffinityphoto className="w-8 h-8 text-green-400" />
 };
 
 type Skill = {
