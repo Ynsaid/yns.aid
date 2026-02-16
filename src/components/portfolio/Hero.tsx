@@ -8,7 +8,7 @@ import { TypeAnimation } from 'react-type-animation';
 const Hero = () => {
 
   const goToProjects  = () => {
-    const projects = document.getElementById('projects') as HTMLElement;
+    const projects = document.getElementById('portfolio') as HTMLElement;
     projects.scrollIntoView({ behavior: 'smooth' });
   }
   return (
