@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useTranslation } from 'react-i18next';
 import {
   SiHtml5, SiCss3, SiJavascript, SiTypescript, SiReact, SiNextdotjs, SiRedux,
   SiNodedotjs, SiExpress, SiMongodb, SiMysql, SiPostgresql, SiFirebase, SiSupabase,
   SiTailwindcss, SiBootstrap, SiKotlin, SiPython, SiFigma, SiCanva, SiAdobeillustrator,
   SiAdobephotoshop, SiGit, SiGithub, SiDocker, SiVite, SiFramer, SiJquery, SiLinux,
-  SiUbuntu, SiCplusplus, SiPhp, SiDart, SiFlutter, SiAndroidstudio,SiAffinityphoto
+  SiUbuntu, SiCplusplus, SiPhp, SiDart, SiFlutter, SiAndroidstudio
 } from 'react-icons/si';
 import { RiJavaLine } from "react-icons/ri";
 import { BsFiletypeXml } from "react-icons/bs";
@@ -53,7 +54,6 @@ const skillIcons: Record<string, JSX.Element> = {
   tools: <FaTools className="w-8 h-8 text-gray-400" />,
   xml: <BsFiletypeXml className="w-8 h-8 text-orange-400" />,
   code: <FaCode className="w-8 h-8 text-gray-300" />,
-  affinity : <SiAffinityphoto className="w-8 h-8 text-green-400" />
 };
 
 type Skill = {
@@ -64,6 +64,7 @@ type Skill = {
 };
 
 const Skills = () => {
+  const { t } = useTranslation();
   const [skills, setSkills] = useState<Skill[]>([]);
 
   useEffect(() => {
@@ -86,17 +87,18 @@ const Skills = () => {
   }, {});
 
   return (
-    <section id="skills" className="py-20 px-4">
+    <section id="skills" className="py-20 px-4 bg-white dark:bg-blue-900/20">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-white text-center mb-12">
-          Skills & Technologies
+        <h2 className="text-4xl font-bold text-black dark:text-white text-center mb-12">
+          {t('skills.title')} 
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
           {Object.entries(skillCategories).map(([category, skills]) => (
-            <div key={category} className="bg-white/5 p-6 rounded-lg backdrop-blur-sm">
-              <h3 className="text-2xl font-semibold text-white mb-6 text-center">
-                {category}
+            <div key={category} className="bg-black/5 dark:bg-white/5 p-6 rounded-lg backdrop-blur-sm">
+              <h3 className="text-2xl font-semibold text-black dark:text-white mb-6 text-center">
+              
+                {t(`skills.${category.toLowerCase()}`, category)}
               </h3>
 
               <div className="grid grid-cols-4 gap-4 justify-items-center">
@@ -107,11 +109,13 @@ const Skills = () => {
 
                   return (
                     <div key={skill.id} className="flex flex-col items-center gap-2">
-            
-                      <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-lg hover:bg-white/20 transition duration-300">
+                      {/* Icon square */}
+                      <div className="w-16 h-16 flex items-center justify-center bg-black/10 dark:bg-white/10 rounded-lg hover:bg-white/20 transition duration-300">
                         {icon}
                       </div>
-                      <span className="text-sm text-gray-300 text-center">{skill.name}</span>
+
+        
+                      <span className="text-sm text-gray-600 dark:text-white text-center">{skill.name}</span>
                     </div>
                   );
                 })}
