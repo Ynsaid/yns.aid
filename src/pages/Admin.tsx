@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Plus, Edit, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
-// Recharts imports for the two line charts
 import {
   ResponsiveContainer,
   LineChart,
@@ -18,8 +20,10 @@ import {
 } from "recharts";
 
 const Admin = () => {
-  // Skills state
-  const [skills, setSkills] = useState([]);
+  const { t ,i18n } = useTranslation();
+
+
+  const [skills, setSkills] = useState<any[]>([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState({
     name: "",
@@ -31,7 +35,7 @@ const Admin = () => {
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // visitors charts state
+
   const [visitorsCount, setVisitorsCount] = useState<number | null>(null);
   const [yearVisitorsData, setYearVisitorsData] = useState<
     { name: string; count: number }[]
@@ -137,7 +141,7 @@ const Admin = () => {
     const fetchSkills = async () => {
       const { data, error } = await supabase.from("skills").select("*");
       if (error) console.error(error);
-      else setSkills(data);
+      else setSkills(data || []);
     };
     fetchSkills();
   }, []);
@@ -161,13 +165,14 @@ const Admin = () => {
         .select();
       if (error) {
         console.error(error);
-      } else {
+      } else if (data) {
         setSkills([...skills, data[0]]);
         setNewSkill({ name: "", category: "", level: 0 });
         setIsAddingSkill(false);
       }
     }
   };
+
   const handleUpdateSkill = async () => {
     if (editingSkillId !== null && newSkill.name && newSkill.category) {
       const { error } = await supabase
@@ -190,11 +195,13 @@ const Admin = () => {
       }
     }
   };
+
   const handleDeleteSkill = async (id: number) => {
     const { error } = await supabase.from("skills").delete().eq("id", id);
     if (error) console.error(error);
     else setSkills(skills.filter((skill) => skill.id !== id));
   };
+
   const handleEditSkill = (id: number) => {
     const skillToEdit = skills.find((skill) => skill.id === id);
     if (skillToEdit) {
@@ -205,21 +212,25 @@ const Admin = () => {
   };
 
   // Projects state
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [isAddingProject, setIsAddingProject] = useState(false);
+  
+
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
+    description_ar: "", 
     image: "",
     technologies: "",
     liveUrl: "",
     githubUrl: "",
   });
+
   useEffect(() => {
     const fetchProjects = async () => {
       const { data, error } = await supabase.from("projects").select("*");
       if (error) console.error(error);
-      else setProjects(data);
+      else setProjects(data || []);
     };
     fetchProjects();
   }, []);
@@ -241,7 +252,6 @@ const Admin = () => {
         throw uploadError;
       }
 
-      // return just the file name
       return fileName;
     } catch (error) {
       console.error("Error in uploadImageAndGetName:", error);
@@ -277,11 +287,13 @@ const Admin = () => {
 
       if (error) {
         console.error("Error inserting project:", error.message);
-      } else {
+      } else if (data) {
         setProjects([...projects, data[0]]);
+ 
         setNewProject({
           title: "",
           description: "",
+          description_ar: "",
           image: "",
           technologies: "",
           liveUrl: "",
@@ -296,26 +308,39 @@ const Admin = () => {
   const handleEditProject = (id: number) => {
     const projectToEdit = projects.find((project) => project.id === id);
     if (projectToEdit) {
+    
       setNewProject({
         title: projectToEdit.title,
         description: projectToEdit.description,
-        image: projectToEdit.image,
+        description_ar: projectToEdit.description_ar || "",
+        image: projectToEdit.image || "",
         technologies: Array.isArray(projectToEdit.technologies)
           ? projectToEdit.technologies.join(", ")
-          : projectToEdit.technologies,
-        liveUrl: projectToEdit.liveUrl,
-        githubUrl: projectToEdit.githubUrl,
+          : projectToEdit.technologies || "",
+        liveUrl: projectToEdit.liveUrl || "",
+        githubUrl: projectToEdit.githubUrl || "",
       });
       setEditingProjectId(id);
       setIsEditingProject(true);
       setIsAddingProject(true);
     }
   };
+
   const handleUpdateProject = async () => {
     if (!editingProjectId) return;
 
+    let imageUrl = newProject.image;
+
+    if (imageFile) {
+      const uploadedUrl = await uploadImageAndGetName(imageFile);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+      }
+    }
+
     const updatedData = {
       ...newProject,
+      image: imageUrl,
       technologies: newProject.technologies.split(",").map((t) => t.trim()),
     };
 
@@ -327,7 +352,7 @@ const Admin = () => {
 
     if (error) {
       console.error(error);
-    } else {
+    } else if (data) {
       const updatedProjects = projects.map((project) =>
         project.id === editingProjectId ? data[0] : project
       );
@@ -335,9 +360,13 @@ const Admin = () => {
       setEditingProjectId(null);
       setIsEditingProject(false);
       setIsAddingProject(false);
+      setImageFile(null); 
+      
+    
       setNewProject({
         title: "",
         description: "",
+        description_ar: "",
         image: "",
         technologies: "",
         liveUrl: "",
@@ -345,6 +374,7 @@ const Admin = () => {
       });
     }
   };
+
   const handleDeleteProject = async (id: number) => {
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) console.error(error);
@@ -352,12 +382,12 @@ const Admin = () => {
   };
 
   // function to get messages
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<any[]>([]);
   useEffect(() => {
     const fetchMessages = async () => {
       const { data, error } = await supabase.from("messages").select("*");
       if (error) console.error(error);
-      else setMessages(data);
+      else setMessages(data || []);
     };
     fetchMessages();
   }, []);
@@ -367,19 +397,20 @@ const Admin = () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
   };
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       handleLogout();
-    }, 600000); // logout after 100 seconds
+    }, 600000); // logout after 10 mins (600 seconds)
 
-    return () => clearTimeout(timer); // cleanup if component is removed
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div dir={i18n.language === "ar" ? "rtl" : "ltr"} className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
           {/* Btn logout */}
           <Button
@@ -460,7 +491,7 @@ const Admin = () => {
                     onChange={(e) =>
                       setNewSkill({
                         ...newSkill,
-                        level: parseInt(e.target.value),
+                        level: parseInt(e.target.value) || 0,
                       })
                     }
                     className="bg-white/10 border-white/20 text-white"
@@ -509,22 +540,22 @@ const Admin = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-white/20 text-black hover:bg-white/10"
+                    className="border-white/20 text-black hover:bg-white/10 hover:text-white"
                     onClick={() => handleEditSkill(skill.id)}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="border-red-500/20 text-red-400 hover:bg-red-500/20"
+                    
+                    className="bg-red-500 text-white hover:bg-red-500/20"
                     onClick={() => handleDeleteSkill(skill.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" color="#ffffff" />
                   </Button>
                 </div>
               </div>
@@ -558,13 +589,25 @@ const Admin = () => {
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
               <Input
-                placeholder="Description"
+                placeholder="Description (English)"
                 value={newProject.description}
                 onChange={(e) =>
                   setNewProject({ ...newProject, description: e.target.value })
                 }
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
+
+        
+              <Input
+                placeholder="الوصف بالعربية"
+                value={newProject.description_ar}
+                onChange={(e) =>
+                  setNewProject({ ...newProject, description_ar: e.target.value })
+                }
+                dir="rtl"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-right"
+              />
+
               <Input
                 type="file"
                 accept="image/*"
@@ -614,9 +657,12 @@ const Admin = () => {
                     setIsAddingProject(false);
                     setIsEditingProject(false);
                     setEditingProjectId(null);
+                    setImageFile(null);
+                  
                     setNewProject({
                       title: "",
                       description: "",
+                      description_ar: "", 
                       image: "",
                       technologies: "",
                       liveUrl: "",
@@ -642,11 +688,17 @@ const Admin = () => {
                 >
                   <div className="mb-3">
                     <h3 className="text-white font-medium">{project?.title}</h3>
-                    <p className="text-blue-400 text-sm">
-                      {project.description}
+                    <p className="text-blue-400 text-sm mb-1">
+                      EN: {project.description}
                     </p>
+           
+                    {project.description_ar && (
+                      <p className="text-green-400 text-sm" dir="rtl">
+                        AR: {project.description_ar}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end gap-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -658,10 +710,10 @@ const Admin = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-red-500/20 text-red-400 hover:bg-red-500/20"
+                      className="bg-red-500 text-white hover:bg-red-500/20"
                       onClick={() => handleDeleteProject(project.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" color="#ffffff" />
                     </Button>
                   </div>
                 </div>
