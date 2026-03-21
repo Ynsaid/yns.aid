@@ -52,8 +52,8 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: red;
+    --foreground: red;
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -61,8 +61,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary:red;
+    --primary-foreground: red;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -103,4 +103,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  html[lang="ar"] body {
+    font-family: "IBM Plex Sans Arabic", sans-serif;
+  }
+
+  html[lang="ar"] {
+    direction: rtl;
+  }
+
 }
