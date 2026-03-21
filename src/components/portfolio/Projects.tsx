@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Github, Award } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
-
+import { useTranslation } from "react-i18next";
 const Portfolio = () => {
+  const { t, i18n } = useTranslation();
+
   const [activeTab, setActiveTab] = useState<
     "projects" | "certificates" | "positions"
   >("projects");
@@ -15,9 +17,9 @@ const Portfolio = () => {
 
   // Tab configuration for the bubble loop
   const tabs = [
-    { id: "projects", label: "Projects" },
-    { id: "certificates", label: "Certificates" },
-    { id: "positions", label: "Positions" },
+    { id: "projects", label: t("projects.projects") },
+    { id: "certificates", label: t("projects.certificates") },
+    { id: "positions", label: t("projects.positions") },
   ];
 
   // Fetch projects
@@ -69,15 +71,15 @@ const Portfolio = () => {
   }, []);
 
   return (
-    <section id="portfolio" className="py-16 px-4">
+    <section id="portfolio" className="py-16 px-4 bg-white dark:bg-blue-900/20">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-white text-center mb-8">
-          My Portfolio
+        <h2 className="text-3xl font-bold text-black dark:text-white text-center mb-8">
+          {t("projects.title")}
         </h2>
 
         {/* Bubble Switcher */}
         <div className="flex justify-center mb-10">
-          <div className="flex space-x-1 bg-white/10 p-1 rounded-full backdrop-blur-sm">
+          <div className="flex space-x-1 bg-black/10 dark:bg-white/10 p-1 rounded-full backdrop-blur-sm">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -116,7 +118,6 @@ const Portfolio = () => {
             className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           >
             {projects.map((project) => {
-              
               const isNew = project.created_at
                 ? (new Date().getTime() -
                     new Date(project.created_at).getTime()) /
@@ -127,10 +128,8 @@ const Portfolio = () => {
               return (
                 <div
                   key={project.id || project.title}
-                 
                   className="relative bg-white/5 rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
-                
                   {isNew && (
                     <div className="absolute top-3 right-3 z-10 pointer-events-none">
                       <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg animate-pulse">
@@ -152,11 +151,13 @@ const Portfolio = () => {
                   )}
 
                   <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="text-base font-semibold text-white mb-1">
+                    <h3 className="text-base font-semibold text-black dark:text-white  mb-1">
                       {project.title}
                     </h3>
-                    <p className="text-gray-300 text-xs mb-2 line-clamp-2">
-                      {project.description}
+                    <p className="text-gray-600 dark:text-gray-300 text-xs mb-2 line-clamp-2">
+                      {i18n.language === "ar" && project.description_ar
+                        ? project.description_ar
+                        : project.description}
                     </p>
 
                     <div className="flex flex-wrap gap-1 mb-3">
@@ -166,7 +167,7 @@ const Portfolio = () => {
                       )?.map((tech: string, index: number) => (
                         <span
                           key={index}
-                          className="px-1.5 py-0.5 bg-blue-600/20 text-blue-300 rounded text-[10px]"
+                          className="px-1.5 py-0.5 bg-blue-600/20 text-blue-600 dark:text-blue-200 rounded text-[10px]"
                         >
                           {tech.trim()}
                         </span>
@@ -177,18 +178,18 @@ const Portfolio = () => {
                       {project.liveUrl && (
                         <Button
                           size="sm"
-                          className="flex-1 hover:bg-white/30 hover:text-white text-xs"
+                          className="flex-1 bg-black dark:bg-white hover:dark:bg-white/30 hover:bg-black/30 hover:text-white text-xs"
                           onClick={() => window.open(project.liveUrl, "_blank")}
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
-                          Live Demo
+                          {t("projects.live")}
                         </Button>
                       )}
                       {project.githubUrl && (
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-white/20 text-black hover:bg-white/20 hover:text-white text-xs"
+                          className="border-white/20 bg-gray-200 dark:bg-black text-black dark:text-white hover:bg-white/20 hover:text-white text-xs"
                           onClick={() =>
                             window.open(project.githubUrl, "_blank")
                           }
@@ -255,8 +256,8 @@ const Portfolio = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-white animate-pulse mt-10">
-                Certificates coming soon...
+              <p className="text-center text-2xl text-white animate-pulse mt-10">
+                {t("projects.soon")}
               </p>
             )}
           </motion.div>
@@ -269,8 +270,8 @@ const Portfolio = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <p className="text-center text-white animate-pulse mt-10">
-              Positions coming soon...
+            <p className="text-center text-2xl text-black dark:text-white animate-pulse mt-10">
+              {t("projects.soon")}
             </p>
           </motion.div>
         )}
