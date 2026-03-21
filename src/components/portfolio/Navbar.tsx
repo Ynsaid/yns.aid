@@ -129,7 +129,7 @@ const Navbar = () => {
               </div>
 
               <div className="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700/50 flex justify-center">
-                {/* كبسولة التحكم (الهاتف) */}
+           
                 {renderControls()}
               </div>
             </div>
