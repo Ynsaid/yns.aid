@@ -1,1 +1,68 @@
-
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "skills": "Skills",
+    "projects": "Projects",
+    "contact": "Contact"
+  },
+  "hero": {
+    "welcome": "Hi, I'm",
+    "name": "Younes Aid",
+    "subtitle": "Full Stack Developer passionate about creating amazing digital experiences and UI/UX designer.",
+    "seework": "See My Work",
+    "downloadcv": "Download CV"
+  },
+  "aboutme": {
+    "title": "About Me",
+    "description": "A passionate Full-Stack Developer, Mobile Engineer, and UI/UX Designer with 2+ years of experience. I bridge the gap between intuitive design and robust back-end architecture to build scalable, high-performance applications. I thrive on solving complex problems, developing intelligent solutions, and actively contributing to the open-source tech community.",
+    "yearsExperience": "Years of Experience",
+    "projectsCompleted": "Projects Completed"
+  },
+  "myservices": {
+    "title": "My Services",
+    "webDevelopment": {
+      "title": "Web Development",
+      "description": "Modern websites using React, Next.js, Tailwind, and backend APIs."
+    },
+    "mobileDevelopment": {
+      "title": "Mobile App Development",
+      "description": "Android apps built with Kotlin or Java."
+    },
+    "uiuxDesign": {
+      "title": "UI/UX Design",
+      "description": "Beautiful and functional interfaces designed with user experience in mind."
+    }
+  },
+  "skills": {
+    "title": "Skills & Technologies",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "design": "UI/UX Design"
+  },
+  "projects": {
+    "title": "Projects",
+    "positions": "Positions",
+    "certificates": "Certificates",
+    "projects": "Projects",
+    "soon":"Soon...",
+    "live": "Live Demo"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Let's work together",
+    "description":"I'm always interested in new opportunities and exciting projects. Whether you have a question or just want to say hi, feel free to reach out!",
+    "email": "Email",
+    "name": "Name",
+    "message": "Message",
+    "send": "Send Message",
+    "sending": "Sending..."
+  },
+  "login": {
+    "title": " Login",
+    "email": "Email",
+    "password": "Password",
+    "signin": "Sign In"
+  }
+}
