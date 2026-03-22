@@ -17,7 +17,7 @@ const Hero = () => {
   const { isDark, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const goToProjects = () => {
-    const projects = document.getElementById("projects") as HTMLElement;
+    const projects = document.getElementById("portfolio") as HTMLElement;
     projects.scrollIntoView({ behavior: "smooth" });
   };
   return (
