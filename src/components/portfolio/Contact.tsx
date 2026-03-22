@@ -89,7 +89,7 @@ const Contact = () => {
               <Input
                 id="name"
                 name="user_name"
-                placeholder={t('contact.yourname')}
+                placeholder={t('contact.name')}
                 className="bg-black/10 dark:bg-white/10 border-black/20 dark:border-white/20 text-white placeholder:text-gray-400"
                 required
               />
@@ -116,7 +116,7 @@ const Contact = () => {
                 id="message"
                 name="message"
                 rows={4}
-                placeholder={t('contact.yourmessage')}
+                placeholder={t('contact.message')}
                 className="w-full px-3 py-2 bg-black/10 dark:bg-white/10 border-black/20 dark:border-white/20 rounded-md text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-white"
                 required
               />
