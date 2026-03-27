@@ -65,15 +65,13 @@ const Portfolio = () => {
       if (error) {
         console.error("Error fetching certificates:", error);
       } else if (data) {
-        // 2. دمج رابط الصورة مع كل شهادة
         const certificatesWithUrls = data.map((cert) => {
           const { data: publicUrlData } = supabase.storage
             .from("Certificates")
-            .getPublicUrl(cert.image); // cert.image يحتوي على الرقم الذي تم رفعه
-
+            .getPublicUrl(cert.image); 
           return {
             id: cert.id,
-            title: cert.title, // هنا نستخدم الاسم الحقيقي من قاعدة البيانات بدلاً من اسم الملف
+            title: cert.title,  
             imageUrl: publicUrlData.publicUrl,
             issuer: "Verified Certificate",
             url: publicUrlData.publicUrl,
