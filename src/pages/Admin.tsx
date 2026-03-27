@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Plus, Edit, Trash2, LogOut } from "lucide-react";
+import { Plus, Edit, Trash2, LogOut, Award } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useTranslation } from "react-i18next";
 
@@ -20,8 +20,7 @@ import {
 } from "recharts";
 
 const Admin = () => {
-  const { t ,i18n } = useTranslation();
-
+  const { t, i18n } = useTranslation();
 
   const [skills, setSkills] = useState<any[]>([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
@@ -31,10 +30,26 @@ const Admin = () => {
     level: 0,
   });
   const [editingSkillId, setEditingSkillId] = useState<number | null>(null);
+
+  const [projects, setProjects] = useState<any[]>([]);
+  const [isAddingProject, setIsAddingProject] = useState(false);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newProject, setNewProject] = useState({
+    title: "",
+    description: "",
+    description_ar: "",
+    image: "",
+    technologies: "",
+    liveUrl: "",
+    githubUrl: "",
+  });
 
+  const [certificates, setCertificates] = useState<any[]>([]);
+  const [isAddingCertificate, setIsAddingCertificate] = useState(false);
+  const [newCertificate, setNewCertificate] = useState({ title: "" });
+  const [certFile, setCertFile] = useState<File | null>(null);
 
   const [visitorsCount, setVisitorsCount] = useState<number | null>(null);
   const [yearVisitorsData, setYearVisitorsData] = useState<
@@ -43,8 +58,8 @@ const Admin = () => {
   const [monthVisitorsData, setMonthVisitorsData] = useState<
     { name: string; count: number }[]
   >([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
-  // function to get visitors
   const getVisitorsByday = async () => {
     const { count, error } = await supabase
       .from("Visitors")
@@ -57,7 +72,6 @@ const Admin = () => {
     return count || 0;
   };
 
-  // fetch and build yearly and monthly chart data
   const fetchVisitorsCharts = async () => {
     try {
       const now = new Date();
@@ -75,7 +89,6 @@ const Admin = () => {
         1
       ).toISOString();
 
-      // Fetch visited_at for the whole year
       const { data: yearData, error: yearError } = await supabase
         .from("Visitors")
         .select("visited_at")
@@ -85,7 +98,6 @@ const Admin = () => {
       if (yearError) {
         console.error("Error fetching year visitors:", yearError);
       } else {
-        // initialize months array
         const months = Array.from({ length: 12 }, (_, i) => ({
           name: new Date(0, i).toLocaleString("en", { month: "short" }),
           count: 0,
@@ -101,7 +113,6 @@ const Admin = () => {
         setYearVisitorsData(months);
       }
 
-      // Fetch visited_at for current month
       const { data: monthData, error: monthError } = await supabase
         .from("Visitors")
         .select("visited_at")
@@ -111,7 +122,6 @@ const Admin = () => {
       if (monthError) {
         console.error("Error fetching month visitors:", monthError);
       } else {
-        // determine number of days in current month
         const daysInMonth = new Date(
           now.getFullYear(),
           now.getMonth() + 1,
@@ -146,7 +156,24 @@ const Admin = () => {
     fetchSkills();
   }, []);
 
-  // fetch visitors count and chart data on mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase.from("projects").select("*");
+      if (error) console.error(error);
+      else setProjects(data || []);
+    };
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      const { data, error } = await supabase.from("certificates").select("*");
+      if (error) console.error(error);
+      else setCertificates(data || []);
+    };
+    fetchCertificates();
+  }, []);
+
   useEffect(() => {
     const fetchVisitors = async () => {
       const count = await getVisitorsByday();
@@ -156,7 +183,28 @@ const Admin = () => {
     fetchVisitors();
   }, []);
 
-  // functions of skills
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase.from("messages").select("*");
+      if (error) console.error(error);
+      else setMessages(data || []);
+    };
+    fetchMessages();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleLogout();
+    }, 600000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
+
   const handleAddSkill = async () => {
     if (newSkill.name && newSkill.category) {
       const { data, error } = await supabase
@@ -211,37 +259,13 @@ const Admin = () => {
     }
   };
 
-  // Projects state
-  const [projects, setProjects] = useState<any[]>([]);
-  const [isAddingProject, setIsAddingProject] = useState(false);
-  
-
-  const [newProject, setNewProject] = useState({
-    title: "",
-    description: "",
-    description_ar: "", 
-    image: "",
-    technologies: "",
-    liveUrl: "",
-    githubUrl: "",
-  });
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const { data, error } = await supabase.from("projects").select("*");
-      if (error) console.error(error);
-      else setProjects(data || []);
-    };
-    fetchProjects();
-  }, []);
-
-  const uploadImageAndGetName = async (file: File): Promise<string | null> => {
+  const uploadImageAndGetName = async (file: File, bucket: string = "project-images"): Promise<string | null> => {
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("project-images")
+        .from(bucket)
         .upload(fileName, file, {
           cacheControl: "3600",
           upsert: false,
@@ -259,7 +283,6 @@ const Admin = () => {
     }
   };
 
-  // functions of projects
   const handleAddProject = async () => {
     if (newProject.title && newProject.description) {
       let imageUrl = newProject.image;
@@ -289,7 +312,6 @@ const Admin = () => {
         console.error("Error inserting project:", error.message);
       } else if (data) {
         setProjects([...projects, data[0]]);
- 
         setNewProject({
           title: "",
           description: "",
@@ -308,7 +330,6 @@ const Admin = () => {
   const handleEditProject = (id: number) => {
     const projectToEdit = projects.find((project) => project.id === id);
     if (projectToEdit) {
-    
       setNewProject({
         title: projectToEdit.title,
         description: projectToEdit.description,
@@ -360,9 +381,7 @@ const Admin = () => {
       setEditingProjectId(null);
       setIsEditingProject(false);
       setIsAddingProject(false);
-      setImageFile(null); 
-      
-    
+      setImageFile(null);
       setNewProject({
         title: "",
         description: "",
@@ -381,38 +400,46 @@ const Admin = () => {
     else setProjects(projects.filter((project) => project.id !== id));
   };
 
-  // function to get messages
-  const [messages, setMessages] = useState<any[]>([]);
-  useEffect(() => {
-    const fetchMessages = async () => {
-      const { data, error } = await supabase.from("messages").select("*");
-      if (error) console.error(error);
-      else setMessages(data || []);
-    };
-    fetchMessages();
-  }, []);
+  const handleAddCertificate = async () => {
+    if (newCertificate.title && certFile) {
+      const uploadedUrl = await uploadImageAndGetName(certFile, "Certificates");
+      
+      if (uploadedUrl) {
+        const { data, error } = await supabase
+          .from("certificates")
+          .insert([{ title: newCertificate.title, image: uploadedUrl }])
+          .select();
 
-  // function of logout
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
+        if (error) {
+          console.error("Error inserting certificate:", error);
+        } else if (data) {
+          setCertificates([...certificates, data[0]]);
+          setNewCertificate({ title: "" });
+          setCertFile(null);
+          setIsAddingCertificate(false);
+        }
+      }
+    }
   };
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      handleLogout();
-    }, 600000); // logout after 10 mins (600 seconds)
 
-    return () => clearTimeout(timer);
-  }, []);
+  const handleDeleteCertificate = async (id: number, imageName: string) => {
+    const { error } = await supabase.from("certificates").delete().eq("id", id);
+    if (error) {
+      console.error(error);
+    } else {
+      setCertificates(certificates.filter((cert) => cert.id !== id));
+      if (imageName) {
+        await supabase.storage.from("Certificates").remove([imageName]);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        
         <div dir={i18n.language === "ar" ? "rtl" : "ltr"} className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-          {/* Btn logout */}
           <Button
             variant="outline"
             className="border-white/20 text-black hover:bg-white/10 hover:text-white/80"
@@ -522,7 +549,6 @@ const Admin = () => {
             </div>
           )}
 
-          {/* Skills list */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {skills.map((skill) => (
               <div
@@ -551,7 +577,6 @@ const Admin = () => {
                   </Button>
                   <Button
                     size="sm"
-                    
                     className="bg-red-500 text-white hover:bg-red-500/20"
                     onClick={() => handleDeleteSkill(skill.id)}
                   >
@@ -596,8 +621,6 @@ const Admin = () => {
                 }
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
-
-        
               <Input
                 placeholder="الوصف بالعربية"
                 value={newProject.description_ar}
@@ -607,7 +630,6 @@ const Admin = () => {
                 dir="rtl"
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-right"
               />
-
               <Input
                 type="file"
                 accept="image/*"
@@ -618,7 +640,6 @@ const Admin = () => {
                 }}
                 className="bg-white/10 border-white/20 text-white"
               />
-
               <Input
                 placeholder="Technologies (comma separated)"
                 value={newProject.technologies}
@@ -658,11 +679,10 @@ const Admin = () => {
                     setIsEditingProject(false);
                     setEditingProjectId(null);
                     setImageFile(null);
-                  
                     setNewProject({
                       title: "",
                       description: "",
-                      description_ar: "", 
+                      description_ar: "",
                       image: "",
                       technologies: "",
                       liveUrl: "",
@@ -678,7 +698,6 @@ const Admin = () => {
             </div>
           )}
 
-          {/* Projects grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {projects &&
               projects.map((project) => (
@@ -691,7 +710,6 @@ const Admin = () => {
                     <p className="text-blue-400 text-sm mb-1">
                       EN: {project.description}
                     </p>
-           
                     {project.description_ar && (
                       <p className="text-green-400 text-sm" dir="rtl">
                         AR: {project.description_ar}
@@ -716,6 +734,89 @@ const Admin = () => {
                       <Trash2 className="h-4 w-4" color="#ffffff" />
                     </Button>
                   </div>
+                </div>
+              ))}
+          </div>
+        </Card>
+
+        {/* Certificates Management */}
+        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-white">
+              Certificates Management
+            </h2>
+            <Button
+              onClick={() => setIsAddingCertificate(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Certificate
+            </Button>
+          </div>
+
+          {isAddingCertificate && (
+            <div className="bg-white/5 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                placeholder="Certificate Name"
+                value={newCertificate.title}
+                onChange={(e) =>
+                  setNewCertificate({ ...newCertificate, title: e.target.value })
+                }
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
+              <Input
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setCertFile(e.target.files[0]);
+                  }
+                }}
+                className="bg-white/10 border-white/20 text-white"
+              />
+              <div className="flex gap-2 col-span-full">
+                <Button
+                  onClick={handleAddCertificate}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Add
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsAddingCertificate(false);
+                    setNewCertificate({ title: "" });
+                    setCertFile(null);
+                  }}
+                  variant="outline"
+                  className="border-white/20 text-black hover:bg-white/20 hover:text-white"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {certificates &&
+              certificates.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="bg-white/5 p-4 rounded-lg flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <Award className="text-blue-400 shrink-0 h-6 w-6" />
+                    <span className="text-white font-medium truncate">
+                      {cert.title}
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-red-500 text-white hover:bg-red-500/20 shrink-0 ml-2"
+                    onClick={() => handleDeleteCertificate(cert.id, cert.image)}
+                  >
+                    <Trash2 className="h-4 w-4" color="#ffffff" />
+                  </Button>
                 </div>
               ))}
           </div>
