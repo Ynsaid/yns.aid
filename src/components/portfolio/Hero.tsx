@@ -53,10 +53,13 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0"
               onClick={goToProjects}
+              className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 px-6 py-3
+             before:absolute before:top-0 before:left-[-120%] before:h-full before:w-[80px]
+             before:bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.45)_50%,transparent_80%)]
+             before:animate-[glare_2.8s_linear_infinite]"
             >
-              {t("hero.seework")}
+              <span className="relative z-10">{t("hero.seework")}</span>
             </Button>
             <Button
               size="lg"
