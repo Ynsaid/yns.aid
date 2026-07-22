@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ExternalLink,
@@ -9,10 +9,23 @@ import {
   FileText,
   Image as ImageIcon,
   X,
+  Briefcase,
+  LayoutGrid,
+  Sparkles,
+  Monitor,
+  Figma,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+type ProjectCategory = "all" | "website" | "ai" | "uiux";
 
 const Portfolio = () => {
   const { t, i18n } = useTranslation();
@@ -20,8 +33,14 @@ const Portfolio = () => {
   const [activeTab, setActiveTab] = useState<
     "projects" | "certificates" | "positions"
   >("projects");
+
+  const [projectCategory, setProjectCategory] =
+    useState<ProjectCategory>("all");
+
   const [projects, setProjects] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
+
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     type: "image" | "pdf";
@@ -33,22 +52,48 @@ const Portfolio = () => {
     { id: "positions", label: t("projects.positions") },
   ];
 
+  const projectTabs: {
+    id: ProjectCategory;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    { id: "all", label: "All", icon: <LayoutGrid className="h-4 w-4" /> },
+    { id: "website", label: "Websites", icon: <Monitor className="h-4 w-4" /> },
+    { id: "ai", label: "AI Apps", icon: <Sparkles className="h-4 w-4" /> },
+    { id: "uiux", label: "UI/UX Design", icon: <Figma className="h-4 w-4" /> },
+  ];
+
   useEffect(() => {
     const fetchProjects = async () => {
-      const { data, error } = await supabase.from("projects").select("*");
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) {
         console.error("Error fetching projects:", error);
       } else {
-        const projectsWithUrls = data.map((project) => {
+        const projectsWithUrls = (data || []).map((project) => {
           let imageUrl = null;
+
           if (project.image) {
             const { data: publicUrlData } = supabase.storage
               .from("project-images")
               .getPublicUrl(project.image);
+
             imageUrl = publicUrlData?.publicUrl || null;
           }
-          return { ...project, imageUrl };
+
+          return {
+            ...project,
+            imageUrl,
+            categoryLabel: (project.type || "website")
+              .toString()
+              .toLowerCase()
+              .trim(),
+          };
         });
+
         setProjects(projectsWithUrls);
       }
     };
@@ -56,11 +101,12 @@ const Portfolio = () => {
     fetchProjects();
   }, []);
 
-  // Fetch certificates from Database
   useEffect(() => {
     const fetchCertificates = async () => {
-      // 1. جلب البيانات من جدول الشهادات
-      const { data, error } = await supabase.from("certificates").select("*");
+      const { data, error } = await supabase
+        .from("certificates")
+        .select("*")
+        .order("id", { ascending: false });
 
       if (error) {
         console.error("Error fetching certificates:", error);
@@ -68,12 +114,13 @@ const Portfolio = () => {
         const certificatesWithUrls = data.map((cert) => {
           const { data: publicUrlData } = supabase.storage
             .from("Certificates")
-            .getPublicUrl(cert.image); 
+            .getPublicUrl(cert.image);
+
           return {
             id: cert.id,
-            title: cert.title,  
+            title: cert.title,
             imageUrl: publicUrlData.publicUrl,
-            issuer: "Verified Certificate",
+            issuer: cert.issuer || "Verified Certificate",
             url: publicUrlData.publicUrl,
           };
         });
@@ -86,15 +133,139 @@ const Portfolio = () => {
   }, []);
 
   useEffect(() => {
+    const fetchPositions = async () => {
+      const { data, error } = await supabase
+        .from("positions")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching positions:", error);
+        setPositions([]);
+      } else {
+        setPositions(data || []);
+      }
+    };
+
+    fetchPositions();
+  }, []);
+
+  useEffect(() => {
     if (previewFile) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
+
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [previewFile]);
+
+  const filteredProjects = useMemo(() => {
+    if (projectCategory === "all") return projects;
+    return projects.filter((project) => project.type === projectCategory);
+  }, [projects, projectCategory]);
+
+  const useSlider = filteredProjects.length > 8;
+
+  const renderProjectCard = (project: any) => {
+    const isNew = project.created_at
+      ? (new Date().getTime() - new Date(project.created_at).getTime()) /
+          (1000 * 3600 * 24) <
+        30
+      : false;
+
+    const categoryMap: Record<string, string> = {
+      website: "Website",
+      ai: "AI App",
+      uiux: "UI/UX",
+    };
+
+    return (
+      <div
+        key={project.id || project.title}
+        className="relative h-full bg-white dark:bg-slate-950/60 border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      >
+        {isNew && (
+          <div className="absolute top-3 right-3 z-20 pointer-events-none">
+            <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+              NEW
+            </span>
+          </div>
+        )}
+
+        <div className="absolute top-3 left-3 z-20">
+          <span className="bg-black/70 text-white text-[10px] font-medium px-2 py-1 rounded-full backdrop-blur">
+            {categoryMap[project.type] || "Project"}
+          </span>
+        </div>
+
+        {project.imageUrl ? (
+          <img
+            src={project.imageUrl}
+            alt={project.title}
+            className="w-full h-44 object-cover"
+          />
+        ) : (
+          <div className="w-full h-44 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <span className="text-gray-400 text-sm">No Image</span>
+          </div>
+        )}
+
+        <div className="p-4 flex flex-col flex-grow">
+          <h3 className="text-base font-semibold text-black dark:text-white mb-2 line-clamp-1">
+            {project.title}
+          </h3>
+
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-3 min-h-[60px]">
+            {i18n.language === "ar" && project.description_ar
+              ? project.description_ar
+              : project.description}
+          </p>
+
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {(Array.isArray(project.technologies)
+              ? project.technologies
+              : project.technologies?.split(","))?.map(
+              (tech: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 bg-blue-600/10 text-blue-700 dark:text-blue-200 rounded-full text-[10px] border border-blue-200/40 dark:border-blue-500/20"
+                >
+                  {tech.trim()}
+                </span>
+              )
+            )}
+          </div>
+
+          <div className="mt-auto flex gap-2">
+            {project.liveUrl && (
+              <Button
+                size="sm"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                onClick={() => window.open(project.liveUrl, "_blank")}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                {t("projects.live")}
+              </Button>
+            )}
+
+            {project.githubUrl && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-gray-300 dark:border-white/20 bg-white dark:bg-black text-black dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 text-xs"
+                onClick={() => window.open(project.githubUrl, "_blank")}
+              >
+                <Github className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -102,13 +273,13 @@ const Portfolio = () => {
         id="portfolio"
         className="py-16 px-4 bg-white dark:bg-blue-900/20 relative"
       >
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-black dark:text-white text-center mb-8">
             {t("projects.title")}
           </h2>
 
-          <div className="flex justify-center mb-10">
-            <div className="flex space-x-1 bg-black/10 dark:bg-white/10 p-1 rounded-full backdrop-blur-sm">
+          <div className="flex justify-center mb-6">
+            <div className="flex flex-wrap justify-center gap-2 bg-black/5 dark:bg-white/10 p-2 rounded-2xl backdrop-blur-sm">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -116,8 +287,8 @@ const Portfolio = () => {
                   className={`${
                     activeTab === tab.id
                       ? "text-white"
-                      : "text-gray-400 hover:text-white"
-                  } relative rounded-full px-6 py-2 text-sm font-medium transition focus-visible:outline-2`}
+                      : "text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                  } relative rounded-xl px-5 py-2.5 text-sm font-medium transition`}
                   style={{
                     WebkitTapHighlightColor: "transparent",
                   }}
@@ -125,7 +296,7 @@ const Portfolio = () => {
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="bubble"
-                      className="absolute inset-0 z-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full shadow-lg"
+                      className="absolute inset-0 z-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-lg"
                       transition={{
                         type: "spring",
                         bounce: 0.2,
@@ -133,9 +304,7 @@ const Portfolio = () => {
                       }}
                     />
                   )}
-                  <span className="relative z-10 mix-blend-normal">
-                    {tab.label}
-                  </span>
+                  <span className="relative z-10">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -147,95 +316,76 @@ const Portfolio = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
             >
-              {projects.map((project) => {
-                const isNew = project.created_at
-                  ? (new Date().getTime() -
-                      new Date(project.created_at).getTime()) /
-                      (1000 * 3600 * 24) <
-                    30
-                  : false;
-
-                return (
-                  <div
-                    key={project.id || project.title}
-                    className="relative bg-white/5 rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                {projectTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setProjectCategory(tab.id)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm ${
+                      projectCategory === tab.id
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white dark:bg-slate-900 text-black dark:text-white border-gray-200 dark:border-white/10 hover:border-blue-400"
+                    }`}
                   >
-                    {isNew && (
-                      <div className="absolute top-3 right-3 z-10 pointer-events-none">
-                        <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg animate-pulse">
-                          NEW
-                        </span>
-                      </div>
-                    )}
+                    {tab.icon}
+                    {tab.label}
+                    <span className="text-[11px] opacity-80">
+                      (
+                      {tab.id === "all"
+                        ? projects.length
+                        : projects.filter((p) => p.type === tab.id).length}
+                      )
+                    </span>
+                  </button>
+                ))}
+              </div>
 
-                    {project.imageUrl ? (
-                      <img
-                        src={project.imageUrl}
-                        alt={project.title}
-                        className="w-full h-40 object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-40 bg-gray-700 flex items-center justify-center">
-                        <span className="text-gray-400 text-sm">No Image</span>
-                      </div>
-                    )}
-
-                    <div className="p-4 flex flex-col flex-grow">
-                      <h3 className="text-base font-semibold text-black dark:text-white mb-1">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-xs mb-2 line-clamp-2">
-                        {i18n.language === "ar" && project.description_ar
-                          ? project.description_ar
-                          : project.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {(Array.isArray(project.technologies)
-                          ? project.technologies
-                          : project.technologies?.split(",")
-                        )?.map((tech: string, index: number) => (
-                          <span
-                            key={index}
-                            className="px-1.5 py-0.5 bg-blue-600/20 text-blue-600 dark:text-blue-200 rounded text-[10px]"
-                          >
-                            {tech.trim()}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="mt-auto flex gap-2">
-                        {project.liveUrl && (
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-black dark:bg-white hover:dark:bg-white/30 hover:bg-black/30 hover:text-white text-xs"
-                            onClick={() =>
-                              window.open(project.liveUrl, "_blank")
-                            }
-                          >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            {t("projects.live")}
-                          </Button>
-                        )}
-                        {project.githubUrl && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-white/20 bg-gray-200 dark:bg-black text-black dark:text-white hover:bg-white/20 hover:text-white text-xs"
-                            onClick={() =>
-                              window.open(project.githubUrl, "_blank")
-                            }
-                          >
-                            <Github className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+              {filteredProjects.length > 0 ? (
+                useSlider ? (
+                  <div className="relative">
+                    <Swiper
+                      modules={[Navigation, Pagination, A11y]}
+                      navigation
+                      pagination={{ clickable: true }}
+                      spaceBetween={20}
+                      slidesPerView={1}
+                      breakpoints={{
+                        640: {
+                          slidesPerView: 2,
+                          spaceBetween: 16,
+                        },
+                        1024: {
+                          slidesPerView: 3,
+                          spaceBetween: 20,
+                        },
+                        1280: {
+                          slidesPerView: 4,
+                          spaceBetween: 24,
+                        },
+                      }}
+                      className="portfolio-projects-slider pb-12"
+                    >
+                      {filteredProjects.map((project) => (
+                        <SwiperSlide
+                          key={project.id || project.title}
+                          className="h-auto"
+                        >
+                          <div className="h-full">{renderProjectCard(project)}</div>
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
                   </div>
-                );
-              })}
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredProjects.map((project) => renderProjectCard(project))}
+                  </div>
+                )
+              ) : (
+                <p className="text-center text-xl text-black dark:text-white mt-10">
+                  No projects in this category yet.
+                </p>
+              )}
             </motion.div>
           )}
 
@@ -307,7 +457,7 @@ const Portfolio = () => {
                                 ) : (
                                   <ImageIcon className="h-3 w-3" />
                                 )}
-                                read
+                                Read
                               </Button>
                             )}
                           </div>
@@ -330,9 +480,40 @@ const Portfolio = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <p className="text-center text-2xl text-black dark:text-white animate-pulse mt-10">
-                {t("projects.soon")}
-              </p>
+              {positions.length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {positions.map((position, index) => (
+                    <div
+                      key={position.id || index}
+                      className="bg-white dark:bg-slate-950/60 border border-gray-200 dark:border-white/10 rounded-2xl p-5 shadow-sm"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-blue-600/10 flex items-center justify-center shrink-0">
+                          <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-black dark:text-white">
+                            {position.title || position.position || "Work Position"}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {position.company || position.organization || "Organization"}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">
+                            {i18n.language === "ar" && position.description_ar
+                              ? position.description_ar
+                              : position.description || "No description available."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-2xl text-black dark:text-white animate-pulse mt-10">
+                  {t("projects.soon")}
+                </p>
+              )}
             </motion.div>
           )}
         </div>
@@ -361,6 +542,7 @@ const Portfolio = () => {
                   )}
                   Certificate Preview
                 </h3>
+
                 <button
                   onClick={() => setPreviewFile(null)}
                   className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -388,8 +570,14 @@ const Portfolio = () => {
           </div>
         )}
       </AnimatePresence>
-    </>
-  );
+    </>
+  );
 };
 
-export default Portfolio;
+
+export default Portfolio; 
+
+
+
+
+
