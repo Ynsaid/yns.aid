@@ -5,10 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Plus, Edit, Trash2, LogOut, Award } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  LogOut,
+  Award,
+  LayoutDashboard,
+  Wrench,
+  FolderKanban,
+  BadgeCheck,
+  Mail,
+  BarChart3,
+  Menu,
+  X,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useTranslation } from "react-i18next";
-
 import {
   ResponsiveContainer,
   LineChart,
@@ -18,9 +31,21 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Admin = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
+
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "skills" | "projects" | "certificates" | "messages"
+  >("overview");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [skills, setSkills] = useState<any[]>([]);
   const [isAddingSkill, setIsAddingSkill] = useState(false);
@@ -43,6 +68,7 @@ const Admin = () => {
     image: "",
     technologies: "",
     liveUrl: "",
+    type: "",
     githubUrl: "",
   });
 
@@ -127,6 +153,7 @@ const Admin = () => {
           now.getMonth() + 1,
           0
         ).getDate();
+
         const days = Array.from({ length: daysInMonth }, (_, i) => ({
           name: String(i + 1),
           count: 0,
@@ -211,6 +238,7 @@ const Admin = () => {
         .from("skills")
         .insert([newSkill])
         .select();
+
       if (error) {
         console.error(error);
       } else if (data) {
@@ -256,10 +284,14 @@ const Admin = () => {
       setNewSkill(skillToEdit);
       setEditingSkillId(id);
       setIsAddingSkill(true);
+      setActiveTab("skills");
     }
   };
 
-  const uploadImageAndGetName = async (file: File, bucket: string = "project-images"): Promise<string | null> => {
+  const uploadImageAndGetName = async (
+    file: File,
+    bucket: string = "project-images"
+  ): Promise<string | null> => {
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
@@ -300,7 +332,9 @@ const Admin = () => {
       const payload = {
         ...newProject,
         image: imageUrl,
-        technologies: newProject.technologies.split(",").map((t) => t.trim()),
+        technologies: newProject.technologies
+          .split(",")
+          .map((t) => t.trim()),
       };
 
       const { data, error } = await supabase
@@ -319,6 +353,7 @@ const Admin = () => {
           image: "",
           technologies: "",
           liveUrl: "",
+          type: "",
           githubUrl: "",
         });
         setImageFile(null);
@@ -339,11 +374,13 @@ const Admin = () => {
           ? projectToEdit.technologies.join(", ")
           : projectToEdit.technologies || "",
         liveUrl: projectToEdit.liveUrl || "",
+        type: projectToEdit.type || "",
         githubUrl: projectToEdit.githubUrl || "",
       });
       setEditingProjectId(id);
       setIsEditingProject(true);
       setIsAddingProject(true);
+      setActiveTab("projects");
     }
   };
 
@@ -362,7 +399,9 @@ const Admin = () => {
     const updatedData = {
       ...newProject,
       image: imageUrl,
-      technologies: newProject.technologies.split(",").map((t) => t.trim()),
+      technologies: newProject.technologies
+        .split(",")
+        .map((t) => t.trim()),
     };
 
     const { data, error } = await supabase
@@ -389,6 +428,7 @@ const Admin = () => {
         image: "",
         technologies: "",
         liveUrl: "",
+        type: "",
         githubUrl: "",
       });
     }
@@ -403,7 +443,7 @@ const Admin = () => {
   const handleAddCertificate = async () => {
     if (newCertificate.title && certFile) {
       const uploadedUrl = await uploadImageAndGetName(certFile, "Certificates");
-      
+
       if (uploadedUrl) {
         const { data, error } = await supabase
           .from("certificates")
@@ -434,466 +474,659 @@ const Admin = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
-      <div className="max-w-6xl mx-auto">
-        
-        <div dir={i18n.language === "ar" ? "rtl" : "ltr"} className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-          <Button
-            variant="outline"
-            className="border-white/20 text-black hover:bg-white/10 hover:text-white/80"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        </div>
+  const navItems = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "skills", label: "Skills", icon: Wrench },
+    { id: "projects", label: "Projects", icon: FolderKanban },
+    { id: "certificates", label: "Certificates", icon: BadgeCheck },
+    { id: "messages", label: "Messages", icon: Mail },
+  ] as const;
 
-        {/* Skills Management */}
-        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-white">
-              Skills Management
-            </h2>
+  const cardClass =
+    "border-slate-200 bg-white/80 text-slate-900 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 dark:text-white";
+  const panelClass =
+    "border border-slate-200 bg-white/70 dark:border-white/10 dark:bg-white/5";
+  const inputClass =
+    "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/50";
+  const subtleText = "text-slate-500 dark:text-slate-400";
+
+  const renderOverview = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className={`${cardClass} rounded-2xl p-6`}>
+          <h3 className="text-lg font-semibold mb-2">Total Skills</h3>
+          <p className="text-4xl font-extrabold text-blue-600 dark:text-blue-400">
+            {skills.length}
+          </p>
+        </Card>
+
+        <Card className={`${cardClass} rounded-2xl p-6`}>
+          <h3 className="text-lg font-semibold mb-2">Projects</h3>
+          <p className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-400">
+            {projects.length}
+          </p>
+        </Card>
+
+        <Card className={`${cardClass} rounded-2xl p-6`}>
+          <h3 className="text-lg font-semibold mb-2">Visitors</h3>
+          <p className="text-4xl font-extrabold text-violet-600 dark:text-violet-400">
+            {visitorsCount !== null ? visitorsCount : "Loading..."}
+          </p>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card className={`${cardClass} p-6`}>
+          <h3 className="text-lg font-semibold mb-4">
+            Visitors This Year (by month)
+          </h3>
+          <div className="w-full h-[260px]">
+            <ResponsiveContainer>
+              <LineChart data={yearVisitorsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b820" />
+                <XAxis dataKey="name" stroke="#94a3b8" />
+                <YAxis allowDecimals={false} stroke="#94a3b8" />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className={`${cardClass} p-6`}>
+          <h3 className="text-lg font-semibold mb-4">
+            Visitors This Month (by day)
+          </h3>
+          <div className="w-full h-[260px]">
+            <ResponsiveContainer>
+              <LineChart data={monthVisitorsData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b820" />
+                <XAxis dataKey="name" stroke="#94a3b8" />
+                <YAxis allowDecimals={false} stroke="#94a3b8" />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderSkills = () => (
+    <Card className={`${cardClass} p-6`}>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-semibold">Skills Management</h2>
+        <Button
+          onClick={() => {
+            setIsAddingSkill(true);
+            setEditingSkillId(null);
+            setNewSkill({ name: "", category: "", level: 0 });
+          }}
+          className="bg-blue-600 text-white hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Skill
+        </Button>
+      </div>
+
+      {isAddingSkill && (
+        <div className={`${panelClass} p-4 rounded-lg mb-6`}>
+          {editingSkillId && (
+            <p className="text-amber-500 dark:text-amber-300 mb-2">
+              Editing Skill ID: {editingSkillId}
+            </p>
+          )}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div>
+              <Label htmlFor="skillName" className="mb-2 block">
+                Skill Name
+              </Label>
+              <Input
+                id="skillName"
+                value={newSkill.name}
+                onChange={(e) =>
+                  setNewSkill({ ...newSkill, name: e.target.value })
+                }
+                placeholder="e.g., React"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="category" className="mb-2 block">
+                Category
+              </Label>
+              <Input
+                id="category"
+                value={newSkill.category}
+                onChange={(e) =>
+                  setNewSkill({ ...newSkill, category: e.target.value })
+                }
+                placeholder="e.g., Frontend"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="level" className="mb-2 block">
+                Level (%)
+              </Label>
+              <Input
+                id="level"
+                type="number"
+                min="0"
+                max="100"
+                value={newSkill.level}
+                onChange={(e) =>
+                  setNewSkill({
+                    ...newSkill,
+                    level: parseInt(e.target.value) || 0,
+                  })
+                }
+                className={inputClass}
+              />
+            </div>
+
+            <div className="flex items-end gap-2">
+              <Button
+                onClick={editingSkillId ? handleUpdateSkill : handleAddSkill}
+                className="bg-green-600 text-white hover:bg-green-700"
+              >
+                {editingSkillId ? "Update" : "Add"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsAddingSkill(false);
+                  setEditingSkillId(null);
+                  setNewSkill({ name: "", category: "", level: 0 });
+                }}
+                variant="outline"
+                className="border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {skills.map((skill) => (
+          <div
+            key={skill.id}
+            className={`${panelClass} flex items-center justify-between p-4 rounded-lg`}
+          >
+            <div className="flex flex-col space-y-1">
+              <span className="font-medium">{skill.name}</span>
+              <span className="text-blue-600 dark:text-blue-400 text-sm">
+                {skill.category}
+              </span>
+              <span className={subtleText + " text-sm"}>{skill.level}%</span>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+                onClick={() => handleEditSkill(skill.id)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-500 text-white hover:bg-red-600"
+                onClick={() => handleDeleteSkill(skill.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+
+  const renderProjects = () => (
+    <Card className={`${cardClass} p-6`}>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-semibold">Projects Management</h2>
+        <Button
+          onClick={() => {
+            setIsAddingProject(true);
+            setIsEditingProject(false);
+            setEditingProjectId(null);
+          }}
+          className="bg-blue-600 text-white hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Project
+        </Button>
+      </div>
+
+      {isAddingProject && (
+        <div className={`${panelClass} p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4`}>
+          <Input
+            placeholder="Title"
+            value={newProject.title}
+            onChange={(e) =>
+              setNewProject({ ...newProject, title: e.target.value })
+            }
+            className={inputClass}
+          />
+
+          <Select
+            value={newProject.type}
+            onValueChange={(value) =>
+              setNewProject({ ...newProject, type: value })
+            }
+          >
+            <SelectTrigger className={inputClass}>
+              <SelectValue placeholder="Select project type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="website">Website</SelectItem>
+              <SelectItem value="ai">AI Application</SelectItem>
+              <SelectItem value="uiux">UI/UX Design</SelectItem>
+              <SelectItem value="mobile">Mobile App</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Input
+            placeholder="Description (English)"
+            value={newProject.description}
+            onChange={(e) =>
+              setNewProject({ ...newProject, description: e.target.value })
+            }
+            className={inputClass}
+          />
+
+          <Input
+            placeholder="الوصف بالعربية"
+            value={newProject.description_ar}
+            onChange={(e) =>
+              setNewProject({ ...newProject, description_ar: e.target.value })
+            }
+            dir="rtl"
+            className={`${inputClass} text-right`}
+          />
+
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                setImageFile(e.target.files[0]);
+              }
+            }}
+            className={inputClass}
+          />
+
+          <Input
+            placeholder="Technologies (comma separated)"
+            value={newProject.technologies}
+            onChange={(e) =>
+              setNewProject({ ...newProject, technologies: e.target.value })
+            }
+            className={inputClass}
+          />
+
+          <Input
+            placeholder="Live URL"
+            value={newProject.liveUrl}
+            onChange={(e) =>
+              setNewProject({ ...newProject, liveUrl: e.target.value })
+            }
+            className={inputClass}
+          />
+
+          <Input
+            placeholder="GitHub URL"
+            value={newProject.githubUrl}
+            onChange={(e) =>
+              setNewProject({ ...newProject, githubUrl: e.target.value })
+            }
+            className={`${inputClass} md:col-span-2 xl:col-span-1`}
+          />
+
+          <div className="flex gap-2 col-span-full">
+            <Button
+              onClick={editingProjectId ? handleUpdateProject : handleAddProject}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              {editingProjectId ? "Update" : "Add"}
+            </Button>
             <Button
               onClick={() => {
-                setIsAddingSkill(true);
-                setEditingSkillId(null);
-                setNewSkill({ name: "", category: "", level: 0 });
+                setIsAddingProject(false);
+                setIsEditingProject(false);
+                setEditingProjectId(null);
+                setImageFile(null);
+                setNewProject({
+                  title: "",
+                  description: "",
+                  description_ar: "",
+                  image: "",
+                  technologies: "",
+                  liveUrl: "",
+                  type: "",
+                  githubUrl: "",
+                });
               }}
-              className="bg-blue-600 hover:bg-blue-700"
+              variant="outline"
+              className="border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Skill
+              Cancel
             </Button>
           </div>
+        </div>
+      )}
 
-          {isAddingSkill && (
-            <div className="bg-white/5 p-4 rounded-lg mb-6">
-              {editingSkillId && (
-                <p className="text-yellow-300 mb-2">
-                  Editing Skill ID: {editingSkillId}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {projects.map((project) => (
+          <div
+            key={project.id}
+            className={`${panelClass} p-4 rounded-lg flex flex-col justify-between`}
+          >
+            <div className="mb-3">
+              <h3 className="font-medium">{project?.title}</h3>
+
+              {project.type && (
+                <span className="inline-block mt-2 mb-2 text-xs rounded-full px-2.5 py-1 bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                  {project.type}
+                </span>
+              )}
+
+              <p className="text-blue-600 dark:text-blue-400 text-sm mb-1">
+                EN: {project.description}
+              </p>
+
+              {project.description_ar && (
+                <p className="text-emerald-600 dark:text-emerald-400 text-sm" dir="rtl">
+                  AR: {project.description_ar}
                 </p>
               )}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label htmlFor="skillName" className="text-white">
-                    Skill Name
-                  </Label>
-                  <Input
-                    id="skillName"
-                    value={newSkill.name}
-                    onChange={(e) =>
-                      setNewSkill({ ...newSkill, name: e.target.value })
-                    }
-                    placeholder="e.g., React"
-                    className="bg-white/10 border-white/20 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="category" className="text-white">
-                    Category
-                  </Label>
-                  <Input
-                    id="category"
-                    value={newSkill.category}
-                    onChange={(e) =>
-                      setNewSkill({ ...newSkill, category: e.target.value })
-                    }
-                    placeholder="e.g., Frontend"
-                    className="bg-white/10 border-white/20 text-white"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="level" className="text-white">
-                    Level (%)
-                  </Label>
-                  <Input
-                    id="level"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={newSkill.level}
-                    onChange={(e) =>
-                      setNewSkill({
-                        ...newSkill,
-                        level: parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className="bg-white/10 border-white/20 text-white"
-                  />
-                </div>
-                <div className="flex items-end gap-2">
-                  <Button
-                    onClick={
-                      editingSkillId ? handleUpdateSkill : handleAddSkill
-                    }
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    {editingSkillId ? "Update" : "Add"}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setIsAddingSkill(false);
-                      setEditingSkillId(null);
-                      setNewSkill({ name: "", category: "", level: 0 });
-                    }}
-                    variant="outline"
-                    className="border-white/20 text-black hover:bg-white/5 hover:text-white"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
             </div>
-          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {skills.map((skill) => (
-              <div
-                key={skill.id}
-                className="flex items-center justify-between bg-white/5 p-4 rounded-lg"
+            <div className="flex justify-end gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-500/30 dark:text-blue-300 dark:hover:bg-blue-500/10"
+                onClick={() => handleEditProject(project.id)}
               >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-500 text-white hover:bg-red-600"
+                onClick={() => handleDeleteProject(project.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+
+  const renderCertificates = () => (
+    <Card className={`${cardClass} p-6`}>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-semibold">Certificates Management</h2>
+        <Button
+          onClick={() => setIsAddingCertificate(true)}
+          className="bg-blue-600 text-white hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Certificate
+        </Button>
+      </div>
+
+      {isAddingCertificate && (
+        <div className={`${panelClass} p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 gap-4`}>
+          <Input
+            placeholder="Certificate Name"
+            value={newCertificate.title}
+            onChange={(e) =>
+              setNewCertificate({ ...newCertificate, title: e.target.value })
+            }
+            className={inputClass}
+          />
+          <Input
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                setCertFile(e.target.files[0]);
+              }
+            }}
+            className={inputClass}
+          />
+          <div className="flex gap-2 col-span-full">
+            <Button
+              onClick={handleAddCertificate}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              Add
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAddingCertificate(false);
+                setNewCertificate({ title: "" });
+                setCertFile(null);
+              }}
+              variant="outline"
+              className="border-slate-300 text-slate-900 hover:bg-slate-100 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {certificates.map((cert) => (
+          <div
+            key={cert.id}
+            className={`${panelClass} p-4 rounded-lg flex items-center justify-between`}
+          >
+            <div className="flex items-center gap-3 overflow-hidden">
+              <Award className="text-blue-600 dark:text-blue-400 shrink-0 h-6 w-6" />
+              <span className="font-medium truncate">{cert.title}</span>
+            </div>
+            <Button
+              size="sm"
+              className="bg-red-500 text-white hover:bg-red-600 shrink-0 ml-2"
+              onClick={() => handleDeleteCertificate(cert.id, cert.image)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+
+  const renderMessages = () => (
+    <Card className={`${cardClass} p-6`}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold">Messages</h2>
+        <span className={`text-sm ${subtleText}`}>{messages.length} messages</span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {messages.length > 0 ? (
+          messages.map((msg, index) => (
+            <div
+              key={msg.id ?? index}
+              className={`${panelClass} rounded-xl p-4`}
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                <h3 className="font-medium">{msg.name || "Unknown sender"}</h3>
+                <span className={`text-xs ${subtleText}`}>
+                  {msg.email || "No email"}
+                </span>
+              </div>
+              <p className={`text-sm whitespace-pre-wrap ${subtleText}`}>
+                {msg.message || "No message content"}
+              </p>
+            </div>
+          ))
+        ) : (
+          <div className="rounded-xl p-10 text-center border border-dashed border-slate-300 text-slate-500 dark:border-white/15 dark:text-slate-400">
+            No messages yet.
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return renderOverview();
+      case "skills":
+        return renderSkills();
+      case "projects":
+        return renderProjects();
+      case "certificates":
+        return renderCertificates();
+      case "messages":
+        return renderMessages();
+      default:
+        return renderOverview();
+    }
+  };
+
+  return (
+    <div
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+      className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white"
+    >
+      <div className="flex min-h-screen">
+        <aside
+          className={`
+            fixed inset-y-0 z-50 w-72
+            bg-white/85 dark:bg-slate-900/85
+            border-r border-slate-200 dark:border-slate-800
+            backdrop-blur-xl
+            transform transition-transform duration-300
+            ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            lg:translate-x-0 lg:static lg:flex lg:flex-col
+          `}
+        >
+          <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                Admin Panel
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Portfolio control center
+              </p>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-white/10"
+              onClick={() => setMobileSidebarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div className="flex-1 p-4 space-y-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+            <Button
+              variant="outline"
+              className="w-full border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-white/20 dark:bg-transparent dark:text-white dark:hover:bg-white/10"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </aside>
+
+        {mobileSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+        )}
+
+        <main className="flex-1 lg:ml-0">
+          <div className="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 md:px-6 py-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-white/10"
+                  onClick={() => setMobileSidebarOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
                 <div>
-                  <div className="flex flex-col space-y-1">
-                    <span className="text-white font-medium">{skill.name}</span>
-                    <span className="text-blue-400 text-sm">
-                      {skill.category}
-                    </span>
-                    <span className="text-gray-300 text-sm">
-                      {skill.level}%
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/20 text-black hover:bg-white/10 hover:text-white"
-                    onClick={() => handleEditSkill(skill.id)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-red-500 text-white hover:bg-red-500/20"
-                    onClick={() => handleDeleteSkill(skill.id)}
-                  >
-                    <Trash2 className="h-4 w-4" color="#ffffff" />
-                  </Button>
+                  <h2 className="text-lg md:text-xl font-semibold capitalize text-slate-900 dark:text-white">
+                    {activeTab}
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Manage your portfolio content
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
 
-        {/* Projects Management */}
-        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-white">
-              Projects Management
-            </h2>
-            <Button
-              onClick={() => setIsAddingProject(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Project
-            </Button>
-          </div>
-
-          {isAddingProject && (
-            <div className="bg-white/5 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                placeholder="Title"
-                value={newProject.title}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, title: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <Input
-                placeholder="Description (English)"
-                value={newProject.description}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, description: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <Input
-                placeholder="الوصف بالعربية"
-                value={newProject.description_ar}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, description_ar: e.target.value })
-                }
-                dir="rtl"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 text-right"
-              />
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setImageFile(e.target.files[0]);
-                  }
-                }}
-                className="bg-white/10 border-white/20 text-white"
-              />
-              <Input
-                placeholder="Technologies (comma separated)"
-                value={newProject.technologies}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, technologies: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <Input
-                placeholder="Live URL"
-                value={newProject.liveUrl}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, liveUrl: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <Input
-                placeholder="GitHub URL"
-                value={newProject.githubUrl}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, githubUrl: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <div className="flex gap-2 col-span-full">
-                <Button
-                  onClick={
-                    editingProjectId ? handleUpdateProject : handleAddProject
-                  }
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  {editingProjectId ? "Update" : "Add"}
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsAddingProject(false);
-                    setIsEditingProject(false);
-                    setEditingProjectId(null);
-                    setImageFile(null);
-                    setNewProject({
-                      title: "",
-                      description: "",
-                      description_ar: "",
-                      image: "",
-                      technologies: "",
-                      liveUrl: "",
-                      githubUrl: "",
-                    });
-                  }}
-                  variant="outline"
-                  className="border-white/20 text-black hover:bg-white/20 hover:text-white"
-                >
-                  Cancel
-                </Button>
+              <div className="hidden md:flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                <BarChart3 className="h-4 w-4" />
+                <span className="text-sm">
+                  Visitors: {visitorsCount !== null ? visitorsCount : "..."}
+                </span>
               </div>
             </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {projects &&
-              projects.map((project) => (
-                <div
-                  key={project.id}
-                  className="bg-white/5 p-4 rounded-lg flex flex-col justify-between"
-                >
-                  <div className="mb-3">
-                    <h3 className="text-white font-medium">{project?.title}</h3>
-                    <p className="text-blue-400 text-sm mb-1">
-                      EN: {project.description}
-                    </p>
-                    {project.description_ar && (
-                      <p className="text-green-400 text-sm" dir="rtl">
-                        AR: {project.description_ar}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
-                      onClick={() => handleEditProject(project.id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-red-500 text-white hover:bg-red-500/20"
-                      onClick={() => handleDeleteProject(project.id)}
-                    >
-                      <Trash2 className="h-4 w-4" color="#ffffff" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </Card>
-
-        {/* Certificates Management */}
-        <Card className="bg-white/10 border-white/20 p-6 mb-8 max-w-5xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-white">
-              Certificates Management
-            </h2>
-            <Button
-              onClick={() => setIsAddingCertificate(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Certificate
-            </Button>
           </div>
 
-          {isAddingCertificate && (
-            <div className="bg-white/5 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                placeholder="Certificate Name"
-                value={newCertificate.title}
-                onChange={(e) =>
-                  setNewCertificate({ ...newCertificate, title: e.target.value })
-                }
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-              <Input
-                type="file"
-                accept="image/*,application/pdf"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setCertFile(e.target.files[0]);
-                  }
-                }}
-                className="bg-white/10 border-white/20 text-white"
-              />
-              <div className="flex gap-2 col-span-full">
-                <Button
-                  onClick={handleAddCertificate}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Add
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsAddingCertificate(false);
-                    setNewCertificate({ title: "" });
-                    setCertFile(null);
-                  }}
-                  variant="outline"
-                  className="border-white/20 text-black hover:bg-white/20 hover:text-white"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {certificates &&
-              certificates.map((cert) => (
-                <div
-                  key={cert.id}
-                  className="bg-white/5 p-4 rounded-lg flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <Award className="text-blue-400 shrink-0 h-6 w-6" />
-                    <span className="text-white font-medium truncate">
-                      {cert.title}
-                    </span>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="bg-red-500 text-white hover:bg-red-500/20 shrink-0 ml-2"
-                    onClick={() => handleDeleteCertificate(cert.id, cert.image)}
-                  >
-                    <Trash2 className="h-4 w-4" color="#ffffff" />
-                  </Button>
-                </div>
-              ))}
-          </div>
-        </Card>
-
-        {/* Stats */}
-        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Total Skills
-            </h3>
-            <p className="text-4xl font-extrabold bg-gradient-to-r from-blue-400 to-blue-300 text-transparent bg-clip-text">
-              {skills.length}
-            </p>
-          </Card>
-
-          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-white mb-2">Projects</h3>
-            <p className="text-4xl font-extrabold bg-gradient-to-r from-green-400 to-green-300 text-transparent bg-clip-text">
-              {projects.length}
-            </p>
-          </Card>
-
-          <Card className="bg-white/10 border-white/20 p-6 rounded-2xl shadow-md hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-white mb-2">Visitors</h3>
-            <p className="text-4xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-300 text-transparent bg-clip-text">
-              {visitorsCount !== null ? visitorsCount : "Loading..."}
-            </p>
-          </Card>
-        </div>
-
-        {/* Visitors Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <Card className="bg-white/10 border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Visitors This Year (by month)
-            </h3>
-            <div style={{ width: "100%", height: 260 }}>
-              <ResponsiveContainer>
-                <LineChart data={yearVisitorsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#60A5FA"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="bg-white/10 border-white/20 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Visitors This Month (by day)
-            </h3>
-            <div style={{ width: "100%", height: 260 }}>
-              <ResponsiveContainer>
-                <LineChart data={monthVisitorsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#34D399"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
+          <div className="p-4 md:p-6">{renderContent()}</div>
+        </main>
       </div>
     </div>
   );
