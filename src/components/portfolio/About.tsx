@@ -1,5 +1,5 @@
 import React from 'react';
-import Me from '../assets/me.jpg';
+import Me from '../assets/profile.jpg';
 import { useTranslation } from 'react-i18next';
 const About = () => {
   const { t } = useTranslation();
