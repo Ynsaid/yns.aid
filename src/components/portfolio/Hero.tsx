@@ -61,6 +61,7 @@ const Hero = () => {
             >
               <span className="relative z-10">{t("hero.seework")}</span>
             </Button>
+            <a href="/cv.docx" download="cv.docx">
             <Button
               size="lg"
               variant="outline"
@@ -68,6 +69,7 @@ const Hero = () => {
             >
               {t("hero.downloadcv")}
             </Button>
+            </a>
           </div>
 
           <div className="flex justify-center md:flex gap-8">
