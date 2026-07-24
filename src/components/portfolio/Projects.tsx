@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   Sparkles,
   Monitor,
+  Smartphone ,
   Figma,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -58,7 +59,7 @@ const Portfolio = () => {
   }[] = [
     { id: "all", label: "All", icon: <LayoutGrid className="h-4 w-4" /> },
     { id: "website", label: "Websites", icon: <Monitor className="h-4 w-4" /> },
-    { id: "mobile", label: "Mobile", icon: <Figma className="h-4 w-4" /> },
+    { id: "mobile", label: "Mobile", icon: <Smartphone className="h-4 w-4" /> },
     { id: "ai", label: "AI Apps", icon: <Sparkles className="h-4 w-4" /> },
     { id: "uiux", label: "UI/UX Design", icon: <Figma className="h-4 w-4" /> },
   ];
