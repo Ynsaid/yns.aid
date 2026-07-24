@@ -61,15 +61,18 @@ const Hero = () => {
             >
               <span className="relative z-10">{t("hero.seework")}</span>
             </Button>
-            <a href="/cv.docx" download="cv.docx">
+            
             <Button
+              asChild
               size="lg"
               variant="outline"
-              className="border-blue-300/60  dark:bg-white text-black dark:text-black hover:bg-blue-500/20 hover:text-white hover:border-blue-300/50"
+              className=" w-full sm:w-auto border-blue-300/60  dark:bg-white text-black dark:text-black hover:bg-blue-500/20 hover:text-white hover:border-blue-300/50"
             >
+              <a href="/cv.docx" download="cv.docx">
               {t("hero.downloadcv")}
+              </a>
             </Button>
-            </a>
+         
           </div>
 
           <div className="flex justify-center md:flex gap-8">
