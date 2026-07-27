@@ -49,7 +49,7 @@ const Navbar = () => {
       <button
         onClick={toggleTheme}
         className="p-2 flex items-center justify-center rounded-full text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-gray-700/50 transition-all duration-300"
-        aria-label="Toggle Dark Mode"
+        aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
         {isDark ? (
           <Sun className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
@@ -98,6 +98,7 @@ const Navbar = () => {
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
               className="text-black dark:text-white hover:bg-gray-300/50 dark:hover:bg-white/10"
+              aria-label={isOpen ? "Website Screen" : "Website Screen"}
             >
               {isOpen ? (
                 <X className="h-6 w-6" />
