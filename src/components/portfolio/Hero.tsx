@@ -81,26 +81,30 @@ const Hero = () => {
             <a
               href="https://github.com/Ynsaid"
               className="text-blue-300 hover:text-blue-100 transition-colors"
+              aria-label="Visit Younes Aid's Github profile"
             >
-              <Github className="h-6 w-6" />
+              <Github className="h-6 w-6" aria-hidden="true"  />
             </a>
             <a
               href="https://www.linkedin.com/in/yyynsaid"
               className="text-blue-300 hover:text-blue-100 transition-colors"
+              aria-label="Visit Younes Aid's Linkedin profile"
             >
-              <Linkedin className="h-6 w-6" />
+              <Linkedin className="h-6 w-6" aria-hidden="true"  />
             </a>
             <a
               href="https://www.facebook.com/yyyns.aid"
               className="text-blue-300 hover:text-blue-100 transition-colors"
+              aria-label="Visit Younes Aid's Facebook profile"
             >
-              <Facebook className="h-6 w-6" />
+              <Facebook className="h-6 w-6" aria-hidden="true" />
             </a>
             <a
               href="https://www.instagram.com/yns.aid/"
               className="text-blue-300 hover:text-blue-100 transition-colors"
+              aria-label="Visit Younes Aid's Instagram profile"
             >
-              <Instagram className="h-6 w-6" />
+              <Instagram className="h-6 w-6" aria-hidden="true" />
             </a>
           </div>
         </div>
