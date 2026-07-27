@@ -246,6 +246,7 @@ const Portfolio = () => {
                 size="sm"
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
                 onClick={() => window.open(project.liveUrl, "_blank")}
+                aria-label="Redirect to Live Project Button"
               >
                 <ExternalLink className="h-3 w-3 mr-1" />
                 {t("projects.live")}
@@ -258,6 +259,7 @@ const Portfolio = () => {
                 variant="outline"
                 className="border-gray-300 dark:border-white/20 bg-white dark:bg-black text-black dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 text-xs"
                 onClick={() => window.open(project.githubUrl, "_blank")}
+                aria-label="Redirect to Github Project Button"
               >
                 <Github className="h-3 w-3" />
               </Button>
@@ -293,6 +295,7 @@ const Portfolio = () => {
                   style={{
                     WebkitTapHighlightColor: "transparent",
                   }}
+                  aria-label="Set active tab button"
                 >
                   {activeTab === tab.id && (
                     <motion.div
@@ -328,6 +331,7 @@ const Portfolio = () => {
                         ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white dark:bg-slate-900 text-black dark:text-white border-gray-200 dark:border-white/10 hover:border-blue-400"
                     }`}
+                    aria-label="Set Active Category Project Button"
                   >
                     {tab.icon}
                     {tab.label}
@@ -547,6 +551,7 @@ const Portfolio = () => {
                 <button
                   onClick={() => setPreviewFile(null)}
                   className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Preview Certificate Button"
                 >
                   <X className="w-5 h-5" />
                 </button>
