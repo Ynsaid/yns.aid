@@ -485,9 +485,7 @@ const Portfolio = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              {positions.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-6">
-                  {
+              {
                 <p className="text-center text-2xl text-black dark:text-white animate-pulse mt-10">
                   {t("projects.soon")}
                 </p>
