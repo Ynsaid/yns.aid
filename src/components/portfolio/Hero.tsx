@@ -58,6 +58,7 @@ const Hero = () => {
              before:absolute before:top-0 before:left-[-120%] before:h-full before:w-[80px]
              before:bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.45)_50%,transparent_80%)]
              before:animate-[glare_2.8s_linear_infinite]"
+              aria-label="Go to see Project Button"
             >
               <span className="relative z-10">{t("hero.seework")}</span>
             </Button>
@@ -67,6 +68,7 @@ const Hero = () => {
               size="lg"
               variant="outline"
               className=" w-full sm:w-auto border-blue-300/60  dark:bg-white text-black dark:text-black hover:bg-blue-500/20 hover:text-white hover:border-blue-300/50"
+              aria-label="Download CV Button"
             >
               <a href="/cv.docx" download="cv.docx">
               {t("hero.downloadcv")}
