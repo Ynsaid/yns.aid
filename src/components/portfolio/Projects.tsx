@@ -133,23 +133,23 @@ const Portfolio = () => {
     fetchCertificates();
   }, []);
 
-  useEffect(() => {
-    const fetchPositions = async () => {
-      const { data, error } = await supabase
-        .from("positions")
-        .select("*")
-        .order("id", { ascending: false });
+  // useEffect(() => {
+  //   const fetchPositions = async () => {
+  //     const { data, error } = await supabase
+  //       .from("positions")
+  //       .select("*")
+  //       .order("id", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching positions:", error);
-        setPositions([]);
-      } else {
-        setPositions(data || []);
-      }
-    };
+  //     if (error) {
+  //       console.error("Error fetching positions:", error);
+  //       setPositions([]);
+  //     } else {
+  //       setPositions(data || []);
+  //     }
+  //   };
 
-    fetchPositions();
-  }, []);
+  //   fetchPositions();
+  // }, []);
 
   useEffect(() => {
     if (previewFile) {
@@ -487,38 +487,11 @@ const Portfolio = () => {
             >
               {positions.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-6">
-                  {positions.map((position, index) => (
-                    <div
-                      key={position.id || index}
-                      className="bg-white dark:bg-slate-950/60 border border-gray-200 dark:border-white/10 rounded-2xl p-5 shadow-sm"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-blue-600/10 flex items-center justify-center shrink-0">
-                          <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        </div>
-
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-black dark:text-white">
-                            {position.title || position.position || "Work Position"}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {position.company || position.organization || "Organization"}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-3">
-                            {i18n.language === "ar" && position.description_ar
-                              ? position.description_ar
-                              : position.description || "No description available."}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
+                  {
                 <p className="text-center text-2xl text-black dark:text-white animate-pulse mt-10">
                   {t("projects.soon")}
                 </p>
-              )}
+              }
             </motion.div>
           )}
         </div>
