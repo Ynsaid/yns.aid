@@ -127,6 +127,7 @@ const Contact = () => {
               type="submit"
               disabled={loading}
               className="w-full bg-gradient-to-r border-white/10 text-white dark:text-white from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 hover:transition-all duration-300 ease-in-out"
+              aria-label="Submit Message button"
             >
               {loading ? t('contact.sending') : t('contact.send')}
             </Button>
