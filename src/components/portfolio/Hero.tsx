@@ -57,7 +57,7 @@ const Hero = () => {
               className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-600 text-white border-0 px-6 py-3
              before:absolute before:top-0 before:left-[-120%] before:h-full before:w-[80px]
              before:bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.45)_50%,transparent_80%)]
-             before:animate-[glare_1s_linear_infinite]"
+             before:animate-[glare_1.5s_linear_infinite]"
               aria-label="Go to see Project Button"
             >
               <span className="relative z-10">{t("hero.seework")}</span>
