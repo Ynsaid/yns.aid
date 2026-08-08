@@ -47,7 +47,14 @@
     "certificates": "Certificates",
     "projects": "Projects",
     "soon":"Soon...",
-    "live": "Live Demo"
+    "live": "Live Demo",
+    "project_category":{
+      "all": "All",
+      "websites":"Websites",
+      "mobile":"Mobile",
+      "aiapps":"AI Apps",
+      "uiux":"UI/UX Design"
+    }
   },
   "contact": {
     "title": "Get in Touch",
