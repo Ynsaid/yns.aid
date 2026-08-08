@@ -57,11 +57,11 @@ const Portfolio = () => {
     label: string;
     icon: React.ReactNode;
   }[] = [
-    { id: "all", label: "All", icon: <LayoutGrid className="h-4 w-4" /> },
-    { id: "website", label: "Websites", icon: <Monitor className="h-4 w-4" /> },
-    { id: "mobile", label: "Mobile", icon: <Smartphone className="h-4 w-4" /> },
-    { id: "ai", label: "AI Apps", icon: <Sparkles className="h-4 w-4" /> },
-    { id: "uiux", label: "UI/UX Design", icon: <Figma className="h-4 w-4" /> },
+    { id: "all", label: t("projects.project_category.all"), icon: <LayoutGrid className="h-4 w-4" /> },
+    { id: "website", label: t("projects.project_category.websites"), icon: <Monitor className="h-4 w-4" /> },
+    { id: "mobile", label: t("projects.project_category.mobile"), icon: <Smartphone className="h-4 w-4" /> },
+    { id: "ai", label: t("projects.project_category.aiapps"), icon: <Sparkles className="h-4 w-4" /> },
+    { id: "uiux", label:t("projects.project_category.uiux"), icon: <Figma className="h-4 w-4" /> },
   ];
 
   useEffect(() => {
