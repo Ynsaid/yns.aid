@@ -2,6 +2,7 @@
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/contexts/ThemeContext";
 import React from "react";
+import { AiOutlineWhatsApp } from "react-icons/ai";
 import { Button } from "@/components/ui/button";
 import {
   ArrowDown,
@@ -105,6 +106,15 @@ const Hero = () => {
               aria-label="Visit Younes Aid's Instagram profile"
             >
               <Instagram className="h-6 w-6" aria-hidden="true" />
+            </a>
+             <a
+              href="https://wa.me/213795065655"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-300 hover:text-green-500 transition-colors"
+              aria-label="WhatsApp"
+            >
+              <AiOutlineWhatsApp className="h-6 w-6" />
             </a>
           </div>
         </div>
