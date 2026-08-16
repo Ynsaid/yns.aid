@@ -191,7 +191,7 @@ const Portfolio = () => {
         {isNew && (
           <div className="absolute top-3 right-3 z-20 pointer-events-none">
             <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
-              NEW
+                 {t("projects.new")}
             </span>
           </div>
         )}
