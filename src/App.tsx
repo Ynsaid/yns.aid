@@ -51,7 +51,9 @@ const App = () => {
                   
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                <FreeConsultation />
+                   {window.location.pathname !== "/admin" && window.location.pathname !== "/login" && window.location.pathname !== "/update-password" && (
+                    <FreeConsultation />
+                  )}
               </BrowserRouter>
             </AuthProvider>
           </div>
