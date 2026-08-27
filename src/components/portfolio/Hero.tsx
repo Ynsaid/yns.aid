@@ -71,7 +71,7 @@ const Hero = () => {
               className=" w-full sm:w-auto border-blue-300/60  dark:bg-white text-black dark:text-black hover:bg-blue-500/20 hover:text-white hover:border-blue-300/50"
               aria-label="Download CV Button"
             >
-              <a href="/cv.docx" download="cv.pdf">
+              <a href="/cv.pdf" download="cv.pdf">
               {t("hero.downloadcv")}
               </a>
             </Button>
