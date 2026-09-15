@@ -23,7 +23,7 @@ const About = () => {
                 <div className="text-gray-600 dark:text-white text-xxl">{t("aboutme.projectsCompleted")}</div>
               </div>
               <div className="text-center p-4 w-40 bg-black/5 dark:bg-white/5 rounded-lg backdrop-blur-sm ">
-                <div className="text-xl font-bold text-blue-400">2+</div>
+                <div className="text-xl font-bold text-blue-400">3+</div>
                 <div className="text-gray-600 dark:text-white text-xxl">{t("aboutme.yearsExperience")}</div>
               </div>
               
