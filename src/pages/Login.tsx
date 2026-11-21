@@ -124,14 +124,16 @@ export default function Login() {
         className="bg-white/5 p-8 rounded-xl shadow-xl backdrop-blur-md w-full max-w-sm"
       >
         <h1 className="text-3xl font-bold text-center text-white mb-6">
-          {isForgotPassword ? "Forgot Password?" : t("login.title")}
+          {isForgotPassword ? t("forgotPassword.title") : t("login.title")}
         </h1>
 
         {isForgotPassword && (
           <p className="text-gray-300 text-sm text-center mb-6">
-            Enter your email address to receive a password reset link.
+            {t("forgotPassword.subtitle")}
           </p>
         )}
+
+      
 
         {error && (
           <div
@@ -151,8 +153,8 @@ export default function Login() {
           </div>
         )}
 
-        <div className="mb-6">
-          <label htmlFor="email" className="sr-only">
+        <div className="mb-6" >
+          <label htmlFor="email" className="sr-only" >
             {t("login.email")}
           </label>
 
@@ -160,7 +162,7 @@ export default function Login() {
             id="email"
             name="email"
             type="email"
-            dir="ltr"
+            dir="rlt"
             autoComplete="email"
             placeholder={t("login.email")}
             className={inputClass}
@@ -232,9 +234,9 @@ export default function Login() {
           className="w-full bg-blue-600 hover:bg-blue-700"
         >
           {loading
-            ? "Please wait..."
+            ? t("forgotPassword.wait")
             : isForgotPassword
-              ? "Send Reset Link"
+              ? t("forgotPassword.send")
               : t("login.signin")}
         </Button>
 
@@ -250,7 +252,7 @@ export default function Login() {
             disabled:cursor-not-allowed
           "
         >
-          {isForgotPassword ? "Back to login" : "Forgot password?"}
+          {isForgotPassword ?     t("forgotPassword.backToLogin") :     t("forgotPassword.title")}
         </button>
       </form>
     </div>
