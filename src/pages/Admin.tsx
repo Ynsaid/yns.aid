@@ -98,81 +98,97 @@ const Admin = () => {
     return count || 0;
   };
 
-  const fetchVisitorsCharts = async () => {
-    try {
-      const now = new Date();
-      const yearStart = new Date(now.getFullYear(), 0, 1).toISOString();
-      const nextYearStart = new Date(now.getFullYear() + 1, 0, 1).toISOString();
+const fetchVisitorsCharts = async () => {
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const currentMonth = now.getMonth();
 
-      const monthStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1
-      ).toISOString();
-      const nextMonthStart = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        1
-      ).toISOString();
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr",
+      "May", "Jun", "Jul", "Aug",
+      "Sep", "Oct", "Nov", "Dec",
+    ];
 
-      const { data: yearData, error: yearError } = await supabase
+    // Boundaries follow the browser's local timezone.
+    const toISO = (
+      month: number,
+      day: number = 1
+    ): string => new Date(year, month, day).toISOString();
+
+    const countVisits = async (
+      start: string,
+      end: string
+    ): Promise<number> => {
+      const { count, error } = await supabase
         .from("Visitors")
-        .select("visited_at")
-        .gte("visited_at", yearStart)
-        .lt("visited_at", nextYearStart);
+        .select("*", { count: "exact", head: true })
+        .gte("visited_at", start)
+        .lt("visited_at", end);
 
-      if (yearError) {
-        console.error("Error fetching year visitors:", yearError);
-      } else {
-        const months = Array.from({ length: 12 }, (_, i) => ({
-          name: new Date(0, i).toLocaleString("en", { month: "short" }),
-          count: 0,
-        }));
-
-        (yearData || []).forEach((row: any) => {
-          const dt = new Date(row.visited_at);
-          if (!isNaN(dt.getTime())) {
-            months[dt.getMonth()].count += 1;
-          }
+      if (error) {
+        console.error("Visitors count query failed:", {
+          start,
+          end,
+          error,
         });
 
-        setYearVisitorsData(months);
+        throw error;
       }
 
-      const { data: monthData, error: monthError } = await supabase
-        .from("Visitors")
-        .select("visited_at")
-        .gte("visited_at", monthStart)
-        .lt("visited_at", nextMonthStart);
-
-      if (monthError) {
-        console.error("Error fetching month visitors:", monthError);
-      } else {
-        const daysInMonth = new Date(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          0
-        ).getDate();
-
-        const days = Array.from({ length: daysInMonth }, (_, i) => ({
-          name: String(i + 1),
-          count: 0,
-        }));
-
-        (monthData || []).forEach((row: any) => {
-          const dt = new Date(row.visited_at);
-          if (!isNaN(dt.getTime())) {
-            const day = dt.getDate();
-            days[day - 1].count += 1;
-          }
-        });
-
-        setMonthVisitorsData(days);
+      if (count === null) {
+        throw new Error("Visitors query returned no count.");
       }
-    } catch (err) {
-      console.error("Error building visitors charts:", err);
-    }
-  };
+
+      return count;
+    };
+
+    const daysInMonth = new Date(
+      year,
+      currentMonth + 1,
+      0
+    ).getDate();
+
+    const [yearChart, monthChart] = await Promise.all([
+      Promise.all(
+        monthNames.map(async (name, monthIndex) => ({
+          name,
+          count: await countVisits(
+            toISO(monthIndex),
+            toISO(monthIndex + 1)
+          ),
+        }))
+      ),
+
+      Promise.all(
+        Array.from({ length: daysInMonth }, (_, index) => index + 1)
+          .map(async (day) => ({
+            name: String(day),
+            count: await countVisits(
+              toISO(currentMonth, day),
+              toISO(currentMonth, day + 1)
+            ),
+          }))
+      ),
+    ]);
+
+    setYearVisitorsData(yearChart);
+    setMonthVisitorsData(monthChart);
+
+    console.table(yearChart);
+    console.log("Visitors charts summary:", {
+      year,
+      currentMonth: monthNames[currentMonth],
+      currentMonthFromYearChart: yearChart[currentMonth].count,
+      currentMonthFromDailyChart: monthChart.reduce(
+        (total, day) => total + day.count,
+        0
+      ),
+    });
+  } catch (error) {
+    console.error("Error fetching visitors charts:", error);
+  }
+};
 
   useEffect(() => {
     const fetchSkills = async () => {
